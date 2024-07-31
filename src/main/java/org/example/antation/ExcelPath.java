@@ -1,0 +1,10 @@
+package org.example.antation;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ExcelPath {
+    boolean isResourceFolder() default true;
+    String path() default "";
+}
