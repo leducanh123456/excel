@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -16,6 +17,7 @@ public class ExcelDTO {
     private Integer contentNumber;
     private Set<String> cellNotCheck;
     private Set<String> cellInValidType;
+    private List<String> titles;
     private Boolean isFirstRowMerge;
     private Boolean isFirstColMerge;
 }

@@ -15,10 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class ExcelUtilImpl<T extends ExcelDTO> implements ExcelUtil<T> {
     private final Class<T> excelClass;
@@ -71,6 +68,8 @@ public class ExcelUtilImpl<T extends ExcelDTO> implements ExcelUtil<T> {
     public T getObjectFromExcel(Row row) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         T t = excelClass.getDeclaredConstructor().newInstance();
         Field[] fields = excelClass.getDeclaredFields();
+        Set<String> cellInValidType = new HashSet<>();
+        Set<String> cellNotCheck = new HashSet<>();
         for (Field field : fields) {
             ExcelColum excelColum = field.getAnnotation(ExcelColum.class);
             // thiết lập metadata
@@ -86,51 +85,43 @@ public class ExcelUtilImpl<T extends ExcelDTO> implements ExcelUtil<T> {
                 field.set(t, null);
                 continue;
             }
-            switch (cell.getCellType()) {
-                case STRING:
-                    if (fieldType.equals(String.class)) {
-                        field.set(t, cell.getStringCellValue());
-                    }
-                    break;
-                case NUMERIC:
-                    if (fieldType.equals(Integer.class)) {
-                        field.set(t, (int) cell.getNumericCellValue()) ;
-                    } else if (fieldType.equals(Double.class)) {
-                        field.set(t, cell.getNumericCellValue());
-                    } else if (fieldType.equals(Float.class)) {
-                        field.set(t, (float) cell.getNumericCellValue());
-                    } else if (fieldType.equals(BigDecimal.class)) {
-                        field.set(t, BigDecimal.valueOf(cell.getNumericCellValue()));
-                    } else if (fieldType.equals(Date.class)) {
-                        field.set(t, cell.getDateCellValue());
-                    } else if (fieldType.equals(LocalDate.class)) {
-                        Date date = cell.getDateCellValue();
-                        field.set(t, date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
-                    } else if (fieldType.equals(LocalDateTime.class)) {
-                        Date date = cell.getDateCellValue();
-                        field.set(t, date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime());
-                    }
-                    break;
-                case BOOLEAN:
-                    if (fieldType.equals(Boolean.class)) {
-                        field.set(t, cell.getBooleanCellValue());
-                    }
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unsupported cell type: " + cell.getCellType());
+            // phải đi từ object để biết được lỗi
+            if (fieldType.equals(String.class) && cell.getCellType().equals(CellType.STRING)) {
+                field.set(t, cell.getStringCellValue());
+            } else if (fieldType.equals(Integer.class) && cell.getCellType().equals(CellType.NUMERIC)) {
+                field.set(t, (int) cell.getNumericCellValue());
+            } else if (fieldType.equals(Double.class) && cell.getCellType().equals(CellType.NUMERIC)) {
+                field.set(t, cell.getNumericCellValue());
+            } else if (fieldType.equals(Float.class) && cell.getCellType().equals(CellType.NUMERIC)) {
+                field.set(t, (float) cell.getNumericCellValue());
+            } else if (fieldType.equals(BigDecimal.class) && cell.getCellType().equals(CellType.NUMERIC)) {
+                field.set(t, BigDecimal.valueOf(cell.getNumericCellValue()));
+            } else if (fieldType.equals(Date.class) && cell.getCellType().equals(CellType.NUMERIC)) {
+                field.set(t, cell.getNumericCellValue());
+            } else if (fieldType.equals(LocalDate.class) && cell.getCellType().equals(CellType.NUMERIC)) {
+                Date date = cell.getDateCellValue();
+                field.set(t, date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
+            } else if (fieldType.equals(LocalDateTime.class) && cell.getCellType().equals(CellType.NUMERIC)) {
+                Date date = cell.getDateCellValue();
+                field.set(t, date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime());
+            } else if (fieldType.equals(Boolean.class) && cell.getCellType().equals(CellType.BOOLEAN)) {
+                field.set(t, cell.getBooleanCellValue());
+            } else {
+                cellInValidType.add(field.getName());
             }
         }
+        t.setCellInValidType(cellInValidType);
         return t;
     }
 
     public List<T> getListObjectFromExcel(Sheet sheet) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         List<T> list = new ArrayList<>();
         ExcelRowStart rowStart = excelClass.getAnnotation(ExcelRowStart.class);
-        if(ObjectUtils.isEmpty(rowStart)){
+        if (ObjectUtils.isEmpty(rowStart)) {
             throw new RuntimeException("Không tồn tại row start");
         }
         for (Row row : sheet) {
-            if(row.getRowNum() < rowStart.startRow()) {
+            if (row.getRowNum() < rowStart.startRow()) {
                 continue;
             }
             T t = getObjectFromExcel(row);

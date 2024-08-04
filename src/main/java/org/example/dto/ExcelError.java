@@ -8,8 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExcelError {
-    //dòng lỗi
     private Integer rowNum;
-    //message lỗi
+    private Integer rowNumContent;
+    private String titleExcel;
+    private Integer colNum;
     private String message;
 }
