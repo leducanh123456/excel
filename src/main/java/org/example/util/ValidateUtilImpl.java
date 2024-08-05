@@ -3,17 +3,15 @@ package org.example.util;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.example.antation.TitleExcel;
 import org.example.dto.ExcelDTO;
-import org.example.dto.UserDTO;
 import org.example.exception.DefineExcelException;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
 
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.stream.IntStream;
 
 public class ValidateUtilImpl<T extends ExcelDTO> implements ValidateUtil<T> {
@@ -76,17 +74,9 @@ public class ValidateUtilImpl<T extends ExcelDTO> implements ValidateUtil<T> {
         return Boolean.TRUE;
     }
 
-    public static void main(String[] args) {
-        ExcelUtilImpl<UserDTO> excelUtil = new ExcelUtilImpl<>(UserDTO.class);
-        Optional<String> pathExcel = excelUtil.getPath();
-        try (InputStream inputStream = ExcelUtilImpl.class.getClassLoader().getResourceAsStream(pathExcel.get())) {
-            ValidateUtilImpl<UserDTO> validateUtil = new ValidateUtilImpl<>();
-            Workbook workbook = new XSSFWorkbook(inputStream);
-            Sheet sheet = workbook.getSheetAt(0);
-            Boolean test = validateUtil.validateHeader(UserDTO.class, sheet);
-            System.out.println("Chán chả buồn nói");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public Errors getErrorFromExcelObject(T t, Validator validator) {
+        Errors errors = new BeanPropertyBindingResult(t, "error");
+        validator.validate(t, errors);
+        return errors;
     }
 }

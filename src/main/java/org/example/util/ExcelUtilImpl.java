@@ -1,15 +1,15 @@
 package org.example.util;
 
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.example.antation.ExcelColum;
 import org.example.antation.ExcelPath;
 import org.example.antation.ExcelRowStart;
 import org.example.dto.ExcelDTO;
-import org.example.dto.UserDTO;
 import org.springframework.util.ObjectUtils;
 
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
@@ -65,7 +65,7 @@ public class ExcelUtilImpl<T extends ExcelDTO> implements ExcelUtil<T> {
         return Optional.empty();
     }
 
-    public T getObjectFromExcel(Row row) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public T getObjectFromExcel(Row row, int rowNum, int contentNum) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         T t = excelClass.getDeclaredConstructor().newInstance();
         Field[] fields = excelClass.getDeclaredFields();
         Set<String> cellInValidType = new HashSet<>();
@@ -97,7 +97,7 @@ public class ExcelUtilImpl<T extends ExcelDTO> implements ExcelUtil<T> {
             } else if (fieldType.equals(BigDecimal.class) && cell.getCellType().equals(CellType.NUMERIC)) {
                 field.set(t, BigDecimal.valueOf(cell.getNumericCellValue()));
             } else if (fieldType.equals(Date.class) && cell.getCellType().equals(CellType.NUMERIC)) {
-                field.set(t, cell.getNumericCellValue());
+                field.set(t, org.apache.poi.ss.usermodel.DateUtil.getJavaDate(cell.getNumericCellValue()));
             } else if (fieldType.equals(LocalDate.class) && cell.getCellType().equals(CellType.NUMERIC)) {
                 Date date = cell.getDateCellValue();
                 field.set(t, date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
@@ -111,6 +111,8 @@ public class ExcelUtilImpl<T extends ExcelDTO> implements ExcelUtil<T> {
             }
         }
         t.setCellInValidType(cellInValidType);
+        t.setRowNumber(rowNum);
+        t.setContentNumber(contentNum);
         return t;
     }
 
@@ -124,22 +126,9 @@ public class ExcelUtilImpl<T extends ExcelDTO> implements ExcelUtil<T> {
             if (row.getRowNum() < rowStart.startRow()) {
                 continue;
             }
-            T t = getObjectFromExcel(row);
+            T t = getObjectFromExcel(row, row.getRowNum(), row.getRowNum() - rowStart.startRow());
             list.add(t);
         }
         return list;
-    }
-
-    public static void main(String[] args) {
-        ExcelUtilImpl<UserDTO> excelUtil = new ExcelUtilImpl<>(UserDTO.class);
-        Optional<String> pathExcel = excelUtil.getPath();
-        try (InputStream inputStream = ExcelUtilImpl.class.getClassLoader().getResourceAsStream(pathExcel.get())) {
-            Workbook workbook = new XSSFWorkbook(inputStream);
-            Sheet sheet = workbook.getSheetAt(0);
-            List<UserDTO> userDTOS = excelUtil.getListObjectFromExcel(sheet);
-            System.out.println("aaaaaa");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

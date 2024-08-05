@@ -18,6 +18,4 @@ public class ExcelDTO {
     private Set<String> cellNotCheck;
     private Set<String> cellInValidType;
     private List<String> titles;
-    private Boolean isFirstRowMerge;
-    private Boolean isFirstColMerge;
 }

@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = false)
 @ExcelRowStart(startRow = 4)
 @ExcelPath(path = "test.xlsx")
-@ExcelClass(excelClass = UserDTO.class)
 public class UserDTO extends ExcelDTO {
 
     @NotEmpty(message = "aString không được để null hoặc empty")
