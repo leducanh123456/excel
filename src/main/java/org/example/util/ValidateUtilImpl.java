@@ -11,7 +11,6 @@ import org.example.dto.ExcelError;
 import org.example.exception.DefineExcelException;
 import org.springframework.util.ObjectUtils;
 import org.springframework.validation.*;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -120,16 +119,16 @@ public class ValidateUtilImpl<T extends ExcelDTO> implements ValidateUtil<T> {
         for (T t : list) {
             Errors errorObject = new BeanPropertyBindingResult(t, "errorObject");
             validator.validate(t, errorObject);
-            List<ObjectError> objectErrors =errorObject.getAllErrors();
-            for(ObjectError objectError : objectErrors) {
+            List<ObjectError> objectErrors = errorObject.getAllErrors();
+            for (ObjectError objectError : objectErrors) {
                 if (objectError instanceof FieldError) {
                     FieldError fieldError = (FieldError) objectError;
                     Set<String> cellNotCheck = t.getCellNotCheck();
                     Set<String> cellInvalidType = t.getCellInValidType();
-                    if(!ObjectUtils.isEmpty(cellNotCheck) && cellNotCheck.contains(fieldError.getField())){
+                    if (!ObjectUtils.isEmpty(cellNotCheck) && cellNotCheck.contains(fieldError.getField())) {
                         continue;
                     }
-                    if(!ObjectUtils.isEmpty(cellInvalidType) && cellInvalidType.contains(fieldError.getField())){
+                    if (!ObjectUtils.isEmpty(cellInvalidType) && cellInvalidType.contains(fieldError.getField())) {
                         continue;
                     }
                     ExcelError excelError = new ExcelError();
