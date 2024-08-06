@@ -9,7 +9,6 @@ import org.example.util.ExcelUtilImpl;
 import org.example.util.ValidateUtilImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,7 +35,7 @@ public class ImportProjectServiceImpl implements ImportProjectService {
                 ProjectExcelDTO projectExcelDTO = projectExcelDTOS.get(0);
                 ValidateUtilImpl<ProjectExcelDTO> projectExcelDTOValidateUtil = new ValidateUtilImpl<>();
                 List<ExcelError> excelErrors = projectExcelDTOValidateUtil.checkPrimary(projectExcelDTOS, ProjectExcelDTO.class);
-                Errors errors = projectExcelDTOValidateUtil.getErrorFromExcelObject(projectExcelDTO, validator);
+                List<ExcelError> excelErrorsTest = projectExcelDTOValidateUtil.validateData(projectExcelDTOS, validator, ProjectExcelDTO.class);
                 System.out.println("đọc thành công file");
             } finally {
                 if (tempFile != null && Files.exists(tempFile)) {

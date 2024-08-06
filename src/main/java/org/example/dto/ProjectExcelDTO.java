@@ -1,5 +1,7 @@
 package org.example.dto;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -36,6 +38,8 @@ public class ProjectExcelDTO extends ExcelDTO {
 
     @ExcelColum(colNum = 2)
     @TitleExcel(title = {"budget"}, rowNum = {0}, colNum = {0})
+    @DecimalMin(value = "0.00", inclusive = true, message = "Value must be at least 0.00")
+    @DecimalMax(value = "1000.00", inclusive = true, message = "Value must be no more than 1000.00")
     @ExcelPrimary
     private BigDecimal budget;
 

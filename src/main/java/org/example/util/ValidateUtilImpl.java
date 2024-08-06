@@ -9,9 +9,9 @@ import org.example.antation.TitleExcel;
 import org.example.dto.ExcelDTO;
 import org.example.dto.ExcelError;
 import org.example.exception.DefineExcelException;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
+import org.springframework.util.ObjectUtils;
+import org.springframework.validation.*;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -108,6 +108,35 @@ public class ValidateUtilImpl<T extends ExcelDTO> implements ValidateUtil<T> {
                     ExcelColum excelColum = field.getAnnotation(ExcelColum.class);
                     excelError.setMessage(titleExcel.title()[0]);
                     excelError.setColNum(excelColum.colNum());
+                    errors.add(excelError);
+                }
+            }
+        }
+        return errors;
+    }
+
+    public List<ExcelError> validateData(List<T> list, Validator validator, Class<T> excelClass) {
+        List<ExcelError> errors = new ArrayList<>();
+        for (T t : list) {
+            Errors errorObject = new BeanPropertyBindingResult(t, "errorObject");
+            validator.validate(t, errorObject);
+            List<ObjectError> objectErrors =errorObject.getAllErrors();
+            for(ObjectError objectError : objectErrors) {
+                if (objectError instanceof FieldError) {
+                    FieldError fieldError = (FieldError) objectError;
+                    Set<String> cellNotCheck = t.getCellNotCheck();
+                    Set<String> cellInvalidType = t.getCellInValidType();
+                    if(!ObjectUtils.isEmpty(cellNotCheck) && cellNotCheck.contains(fieldError.getField())){
+                        continue;
+                    }
+                    if(!ObjectUtils.isEmpty(cellInvalidType) && cellInvalidType.contains(fieldError.getField())){
+                        continue;
+                    }
+                    ExcelError excelError = new ExcelError();
+                    excelError.setRowNum(t.getRowNumber());
+                    excelError.setRowNumContent(t.getContentNumber());
+                    excelError.setMessage(fieldError.getDefaultMessage());
+                    excelError.setColNum(1);
                     errors.add(excelError);
                 }
             }
