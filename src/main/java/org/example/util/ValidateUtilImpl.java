@@ -3,15 +3,18 @@ package org.example.util;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.example.antation.ExcelColum;
+import org.example.antation.ExcelPrimary;
 import org.example.antation.TitleExcel;
 import org.example.dto.ExcelDTO;
+import org.example.dto.ExcelError;
 import org.example.exception.DefineExcelException;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class ValidateUtilImpl<T extends ExcelDTO> implements ValidateUtil<T> {
@@ -77,6 +80,38 @@ public class ValidateUtilImpl<T extends ExcelDTO> implements ValidateUtil<T> {
     public Errors getErrorFromExcelObject(T t, Validator validator) {
         Errors errors = new BeanPropertyBindingResult(t, "error");
         validator.validate(t, errors);
+        return errors;
+    }
+
+    public List<ExcelError> checkPrimary(List<T> list, Class<T> t) throws IllegalAccessException {
+        List<ExcelError> errors = new ArrayList<>();
+        Field[] fields = t.getDeclaredFields();
+        List<Field> fieldsPrimary = new ArrayList<>();
+        for (int i = 0; i < fields.length; i++) {
+            if (fields[i].getAnnotation(ExcelPrimary.class) != null) {
+                fieldsPrimary.add(fields[i]);
+            }
+        }
+        if (fieldsPrimary.isEmpty()) {
+            return errors;
+        }
+        for (Field field : fieldsPrimary) {
+            Set<Object> idSet = new HashSet<>();
+            for (T obj : list) {
+                field.setAccessible(true);
+                Object value = field.get(obj);
+                if (!idSet.add(value)) {
+                    ExcelError excelError = new ExcelError();
+                    excelError.setRowNum(obj.getRowNumber());
+                    excelError.setRowNumContent(obj.getContentNumber());
+                    TitleExcel titleExcel = field.getAnnotation(TitleExcel.class);
+                    ExcelColum excelColum = field.getAnnotation(ExcelColum.class);
+                    excelError.setMessage(titleExcel.title()[0]);
+                    excelError.setColNum(excelColum.colNum());
+                    errors.add(excelError);
+                }
+            }
+        }
         return errors;
     }
 }

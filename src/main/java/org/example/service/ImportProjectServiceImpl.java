@@ -3,6 +3,7 @@ package org.example.service;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.example.dto.ExcelError;
 import org.example.dto.ProjectExcelDTO;
 import org.example.util.ExcelUtilImpl;
 import org.example.util.ValidateUtilImpl;
@@ -34,8 +35,8 @@ public class ImportProjectServiceImpl implements ImportProjectService {
                 List<ProjectExcelDTO> projectExcelDTOS = projectExcelDTOExcelUtil.getListObjectFromExcel(sheet);
                 ProjectExcelDTO projectExcelDTO = projectExcelDTOS.get(0);
                 ValidateUtilImpl<ProjectExcelDTO> projectExcelDTOValidateUtil = new ValidateUtilImpl<>();
+                List<ExcelError> excelErrors = projectExcelDTOValidateUtil.checkPrimary(projectExcelDTOS, ProjectExcelDTO.class);
                 Errors errors = projectExcelDTOValidateUtil.getErrorFromExcelObject(projectExcelDTO, validator);
-
                 System.out.println("đọc thành công file");
             } finally {
                 if (tempFile != null && Files.exists(tempFile)) {
