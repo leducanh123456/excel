@@ -5,8 +5,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.example.dto.ExcelError;
 import org.example.dto.ProjectExcelDTO;
-import org.example.util.ExcelUtilImpl;
-import org.example.util.ValidateUtilImpl;
+import org.example.util.ExcelUtil;
+import org.example.util.ValidateExcel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Validator;
@@ -30,12 +30,12 @@ public class ImportProjectServiceImpl implements ImportProjectService {
             multipartFile.transferTo(tempFile.toFile());
             try (Workbook workbook = new XSSFWorkbook(Files.newInputStream(tempFile))) {
                 Sheet sheet = workbook.getSheetAt(0);
-                ExcelUtilImpl<ProjectExcelDTO> projectExcelDTOExcelUtil = new ExcelUtilImpl<>(ProjectExcelDTO.class);
-                List<ProjectExcelDTO> projectExcelDTOS = projectExcelDTOExcelUtil.getListObjectFromExcel(sheet);
-                ProjectExcelDTO projectExcelDTO = projectExcelDTOS.get(0);
-                ValidateUtilImpl<ProjectExcelDTO> projectExcelDTOValidateUtil = new ValidateUtilImpl<>();
-                List<ExcelError> excelErrors = projectExcelDTOValidateUtil.checkPrimary(projectExcelDTOS, ProjectExcelDTO.class);
-                List<ExcelError> excelErrorsTest = projectExcelDTOValidateUtil.validateData(projectExcelDTOS, validator, ProjectExcelDTO.class);
+//                ExcelUtil<ProjectExcelDTO> projectExcelDTOExcelUtil = new ExcelUtil<>();
+//                List<ProjectExcelDTO> projectExcelDTOS = projectExcelDTOExcelUtil.getListObjectFromExcel(sheet, ProjectExcelDTO.class);
+//                ProjectExcelDTO projectExcelDTO = projectExcelDTOS.get(0);
+//                ValidateExcel<ProjectExcelDTO> projectExcelDTOValidateUtil = new ValidateExcel<>();
+//                List<ExcelError> excelErrors = projectExcelDTOValidateUtil.checkPrimary(projectExcelDTOS, ProjectExcelDTO.class);
+//                List<ExcelError> excelErrorsTest = projectExcelDTOValidateUtil.validateData(projectExcelDTOS, validator, ProjectExcelDTO.class);
                 System.out.println("đọc thành công file");
             } finally {
                 if (tempFile != null && Files.exists(tempFile)) {

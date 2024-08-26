@@ -16,8 +16,12 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.IntStream;
 
-public class ValidateUtilImpl<T extends ExcelDTO> implements ValidateUtil<T> {
-    public Boolean validateHeaderMetaData(Class<T> headerClass) {
+public class ValidateExcel {
+    private ValidateExcel() {
+
+    }
+
+    public static <T extends ExcelDTO> Boolean validateHeaderMetaData(Class<T> headerClass) {
         Field[] fields = headerClass.getDeclaredFields();
         int tmp = 0;
         for (Field field : fields) {
@@ -51,7 +55,7 @@ public class ValidateUtilImpl<T extends ExcelDTO> implements ValidateUtil<T> {
         return Boolean.FALSE;
     }
 
-    public Boolean validateHeader(Class<T> headerClass, Sheet sheet) {
+    public static <T extends ExcelDTO> Boolean validateHeader(Class<T> headerClass, Sheet sheet) {
         Boolean validateMetaData = validateHeaderMetaData(headerClass);
         if (!validateMetaData) {
             return validateMetaData;
@@ -76,13 +80,13 @@ public class ValidateUtilImpl<T extends ExcelDTO> implements ValidateUtil<T> {
         return Boolean.TRUE;
     }
 
-    public Errors getErrorFromExcelObject(T t, Validator validator) {
+    public static <T extends ExcelDTO> Errors getErrorFromExcelObject(T t, Validator validator) {
         Errors errors = new BeanPropertyBindingResult(t, "error");
         validator.validate(t, errors);
         return errors;
     }
 
-    public List<ExcelError> checkPrimary(List<T> list, Class<T> t) throws IllegalAccessException {
+    public static <T extends ExcelDTO> List<ExcelError> checkPrimary(List<T> list, Class<T> t) throws IllegalAccessException {
         List<ExcelError> errors = new ArrayList<>();
         Field[] fields = t.getDeclaredFields();
         List<Field> fieldsPrimary = new ArrayList<>();
@@ -114,7 +118,7 @@ public class ValidateUtilImpl<T extends ExcelDTO> implements ValidateUtil<T> {
         return errors;
     }
 
-    public List<ExcelError> validateData(List<T> list, Validator validator, Class<T> excelClass) {
+    public static <T extends ExcelDTO> List<ExcelError> validateData(List<T> list, Validator validator, Class<T> excelClass) {
         List<ExcelError> errors = new ArrayList<>();
         for (T t : list) {
             Errors errorObject = new BeanPropertyBindingResult(t, "errorObject");

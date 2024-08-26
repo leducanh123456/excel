@@ -20,8 +20,7 @@ import java.util.Date;
 @NoArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = false)
-@ExcelRowStart(startRow = 1)
-@ExcelPath(isResourceFolder = false)
+@ExcelClass
 public class ProjectExcelDTO extends ExcelDTO {
 
     @NotEmpty(message = "sapCode không được để trống")
