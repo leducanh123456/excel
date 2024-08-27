@@ -6,7 +6,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ProjectExcelData extends ExcelData<ProjectExcelDTO> {
-    public ProjectExcelData(Class<ProjectExcelDTO> aClass) {
-        super(aClass);
+    private static final Class<ProjectExcelDTO> projectExcelDTOClass = ProjectExcelDTO.class;
+    public ProjectExcelData() {
+        super(projectExcelDTOClass);
     }
 }

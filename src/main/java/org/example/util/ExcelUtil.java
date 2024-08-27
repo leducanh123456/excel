@@ -1,11 +1,11 @@
 package org.example.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
-import org.example.antation.ExcelClass;
 import org.example.antation.ExcelColum;
+import org.example.antation.ExcelMapping;
 import org.example.dto.ExcelDTO;
 import org.example.exception.NoSheetException;
-import org.example.exception.NumberSheetsTooLarge;
 import org.example.exception.SheetInvalidException;
 import org.springframework.util.ObjectUtils;
 
@@ -16,27 +16,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Slf4j
 public class ExcelUtil {
 
     private ExcelUtil() {
 
     }
 
-    // cần kiểm tra trước khi chạy chương trình
-    public static <T extends ExcelDTO> Boolean checkValidRowStart(Class<T> excelClass) {
-        if (excelClass.isAnnotationPresent(ExcelClass.class)) {
-            ExcelClass annotation = excelClass.getAnnotation(ExcelClass.class);
-            return annotation.startRow() >= 0;
-        }
-        return Boolean.FALSE;
-    }
-
-    public static <T> Boolean checkExcelPath(Class<T> excelClass) {
-        ExcelClass annotation = excelClass.getAnnotation(ExcelClass.class);
-        return annotation.isResourceFolder();
-    }
-
-    //
     public static <T extends ExcelDTO> Boolean checkValidConfigRowData(List<T> excelDTOS) {
         if (ObjectUtils.isEmpty(excelDTOS)) {
             return Boolean.FALSE;
@@ -46,21 +32,16 @@ public class ExcelUtil {
     }
 
     public static <T extends ExcelDTO> Optional<String> getPath(Class<T> excelClass) {
-        if (checkExcelPath(excelClass)) {
-            ExcelClass annotation = excelClass.getAnnotation(ExcelClass.class);
+        if (ValidateExcelMapping.checkExcelConfigPath(excelClass)) {
+            ExcelMapping annotation = excelClass.getAnnotation(ExcelMapping.class);
             return Optional.of(annotation.path());
         }
         return Optional.empty();
     }
 
     public static <T extends ExcelDTO> Integer getRowStart(Class<T> excelClass) {
-        ExcelClass annotation = excelClass.getAnnotation(ExcelClass.class);
+        ExcelMapping annotation = excelClass.getAnnotation(ExcelMapping.class);
         return annotation.startRow();
-    }
-
-    public static <T extends ExcelDTO> Boolean checkAllSheet(Class<T> excelClass) {
-        ExcelClass annotation = excelClass.getAnnotation(ExcelClass.class);
-        return annotation.readAllSheet();
     }
 
     public static Optional<String> getTitle() {
@@ -121,7 +102,7 @@ public class ExcelUtil {
 
     public static <T extends ExcelDTO> List<T> getListObjectFromExcel(Sheet sheet, Class<T> excelClass) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         List<T> list = new ArrayList<>();
-        ExcelClass rowStart = excelClass.getAnnotation(ExcelClass.class);
+        ExcelMapping rowStart = excelClass.getAnnotation(ExcelMapping.class);
         if (ObjectUtils.isEmpty(rowStart)) {
             throw new RuntimeException("Không tồn tại row start");
         }
@@ -139,18 +120,15 @@ public class ExcelUtil {
         if (workbook.getNumberOfSheets() <= 0) {
             throw new NoSheetException("Sheet không tồn tại");
         }
-        if (checkAllSheet(excelClass)) {
+        ExcelMapping excelMapping = excelClass.getAnnotation(ExcelMapping.class);
+        if (excelMapping.readAllSheet()) {
             int[] sheets = new int[workbook.getNumberOfSheets()];
             for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
                 sheets[i] = i;
             }
             return sheets;
         }
-        ExcelClass annotation = excelClass.getAnnotation(ExcelClass.class);
-        int[] sheets = annotation.readSheet();
-        if (sheets.length > 100) {
-            throw new NumberSheetsTooLarge("The number of sheets is too large");
-        }
+        int[] sheets = excelMapping.readSheet();
         Set<Integer> uniqueElements = new HashSet<>();
         for (int num : sheets) {
             if (!uniqueElements.add(num)) {

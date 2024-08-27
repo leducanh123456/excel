@@ -20,7 +20,7 @@ import java.util.Date;
 @NoArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = false)
-@ExcelClass
+@ExcelMapping
 public class ProjectExcelDTO extends ExcelDTO {
 
     @NotEmpty(message = "sapCode không được để trống")

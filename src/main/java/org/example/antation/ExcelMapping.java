@@ -7,15 +7,22 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface ExcelClass {
-
+public @interface ExcelMapping {
+    /**
+     *
+     * uu tien hon cau hinh ben duoi
+     */
     boolean readAllSheet() default false;
 
     int[] readSheet() default {0};
 
     int startRow() default 0;
 
-    int excelMaxRow() default -1;
+    /**
+     *
+     * 0 tức là không cấu hinh
+     */
+    int excelMaxRow() default 0;
 
     boolean isResourceFolder() default false;
     String path() default "";
