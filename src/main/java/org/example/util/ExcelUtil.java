@@ -6,7 +6,6 @@ import org.example.antation.ExcelColum;
 import org.example.antation.ExcelMapping;
 import org.example.dto.ExcelDTO;
 import org.example.exception.NoSheetException;
-import org.example.exception.SheetInvalidException;
 import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.Field;
@@ -128,22 +127,6 @@ public class ExcelUtil {
             }
             return sheets;
         }
-        int[] sheets = excelMapping.readSheet();
-        Set<Integer> uniqueElements = new HashSet<>();
-        for (int num : sheets) {
-            if (!uniqueElements.add(num)) {
-                throw new SheetInvalidException("Cấu hình các sheet cần đọc không hợp lệ");
-            }
-        }
-        int max = sheets[0];
-        for (int i = 1; i < sheets.length; i++) {
-            if (sheets[i] > max) {
-                max = sheets[i];
-            }
-        }
-        if (max > workbook.getNumberOfSheets()) {
-            throw new SheetInvalidException("Cấu hình các sheet cần đọc không hợp lệ");
-        }
-        return sheets;
+        return excelMapping.readSheet();
     }
 }

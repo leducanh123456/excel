@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = false)
+@ExcelMapping
 public class UserDTO extends ExcelDTO {
 
     @NotEmpty(message = "aString không được để null hoặc empty")

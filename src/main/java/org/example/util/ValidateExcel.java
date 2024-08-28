@@ -118,17 +118,17 @@ public class ValidateExcel {
         return errors;
     }
 
-    public static <T extends ExcelDTO> List<ExcelError> validateData(List<T> list, Validator validator, Class<T> excelClass) {
-        List<ExcelError> errors = new ArrayList<>();
+    public static <T extends ExcelDTO> void validateData(List<T> list, Validator validator, Class<T> excelClass) {
         for (T t : list) {
+            List<ExcelError> errors = new ArrayList<>();
             Errors errorObject = new BeanPropertyBindingResult(t, "errorObject");
             validator.validate(t, errorObject);
             List<ObjectError> objectErrors = errorObject.getAllErrors();
+            Set<String> cellNotCheck = t.getCellNotCheck();
+            Set<String> cellInvalidType = t.getCellInValidType();
             for (ObjectError objectError : objectErrors) {
                 if (objectError instanceof FieldError) {
                     FieldError fieldError = (FieldError) objectError;
-                    Set<String> cellNotCheck = t.getCellNotCheck();
-                    Set<String> cellInvalidType = t.getCellInValidType();
                     if (!ObjectUtils.isEmpty(cellNotCheck) && cellNotCheck.contains(fieldError.getField())) {
                         continue;
                     }
@@ -143,7 +143,18 @@ public class ValidateExcel {
                     errors.add(excelError);
                 }
             }
+            // thêm các trường không đúng định dạng dữ liệu
+            if (cellInvalidType != null) {
+                for (String cell : cellInvalidType) {
+                    ExcelError excelError = new ExcelError();
+                    excelError.setRowNum(t.getRowNumber());
+                    excelError.setRowNumContent(t.getContentNumber());
+                    excelError.setMessage(cell + "Không đúng định dạng dữ liệu");
+                    excelError.setColNum(1);
+                    errors.add(excelError);
+                }
+            }
+            t.setErrors(errors);
         }
-        return errors;
     }
 }

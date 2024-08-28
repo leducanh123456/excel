@@ -18,4 +18,5 @@ public class ExcelDTO {
     private Set<String> cellNotCheck;
     private Set<String> cellInValidType;
     private List<String> titles;
+    private List<ExcelError> errors;
 }
