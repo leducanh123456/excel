@@ -86,17 +86,13 @@ public class ValidateExcel {
         return errors;
     }
 
-    public static <T extends ExcelDTO> List<ExcelError> checkPrimary(List<T> list, Class<T> t) throws IllegalAccessException {
-        List<ExcelError> errors = new ArrayList<>();
+    public static <T extends ExcelDTO> void checkPrimary(List<T> list, Class<T> t) throws IllegalAccessException {
         Field[] fields = t.getDeclaredFields();
         List<Field> fieldsPrimary = new ArrayList<>();
         for (int i = 0; i < fields.length; i++) {
             if (fields[i].getAnnotation(ExcelPrimary.class) != null) {
                 fieldsPrimary.add(fields[i]);
             }
-        }
-        if (fieldsPrimary.isEmpty()) {
-            return errors;
         }
         for (Field field : fieldsPrimary) {
             Set<Object> idSet = new HashSet<>();
@@ -109,13 +105,13 @@ public class ValidateExcel {
                     excelError.setRowNumContent(obj.getContentNumber());
                     TitleExcel titleExcel = field.getAnnotation(TitleExcel.class);
                     ExcelColum excelColum = field.getAnnotation(ExcelColum.class);
-                    excelError.setMessage(titleExcel.title()[0]);
+                    excelError.setMessage("Giá trị không phải laf giá trị duy nhất");
                     excelError.setColNum(excelColum.colNum());
-                    errors.add(excelError);
+                    excelError.setTitleExcel(Arrays.asList(titleExcel.title()));
+                    obj.getErrors().add(excelError);
                 }
             }
         }
-        return errors;
     }
 
     public static <T extends ExcelDTO> void validateData(List<T> list, Validator validator, Class<T> excelClass) {
@@ -135,22 +131,37 @@ public class ValidateExcel {
                     if (!ObjectUtils.isEmpty(cellInvalidType) && cellInvalidType.contains(fieldError.getField())) {
                         continue;
                     }
+                    Field[] fields = excelClass.getDeclaredFields();
                     ExcelError excelError = new ExcelError();
                     excelError.setRowNum(t.getRowNumber());
                     excelError.setRowNumContent(t.getContentNumber());
                     excelError.setMessage(fieldError.getDefaultMessage());
-                    excelError.setColNum(1);
+                    for (int i = 0; i < fields.length; i++) {
+                        if (fields[i].getName().equals(fieldError.getField())) {
+                            TitleExcel titleExcel = fields[i].getAnnotation(TitleExcel.class);
+                            ExcelColum excelColum = fields[i].getAnnotation(ExcelColum.class);
+                            excelError.setTitleExcel(Arrays.asList(titleExcel.title()));
+                            excelError.setColNum(excelColum.colNum());
+                        }
+                    }
                     errors.add(excelError);
                 }
             }
-            // thêm các trường không đúng định dạng dữ liệu
             if (cellInvalidType != null) {
                 for (String cell : cellInvalidType) {
                     ExcelError excelError = new ExcelError();
                     excelError.setRowNum(t.getRowNumber());
                     excelError.setRowNumContent(t.getContentNumber());
-                    excelError.setMessage(cell + "Không đúng định dạng dữ liệu");
-                    excelError.setColNum(1);
+                    excelError.setMessage(cell + " : Không đúng định dạng dữ liệu");
+                    Field[] fields = excelClass.getDeclaredFields();
+                    for (int i = 0; i < fields.length; i++) {
+                        if (fields[i].getName().equals(cell)) {
+                            TitleExcel titleExcel = fields[i].getAnnotation(TitleExcel.class);
+                            ExcelColum excelColum = fields[i].getAnnotation(ExcelColum.class);
+                            excelError.setTitleExcel(Arrays.asList(titleExcel.title()));
+                            excelError.setColNum(excelColum.colNum());
+                        }
+                    }
                     errors.add(excelError);
                 }
             }

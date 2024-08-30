@@ -33,7 +33,8 @@ public class ProjectExcelDTO extends ExcelDTO {
     @TitleExcel(title = {"sapCode"}, rowNum = {0}, colNum = {0})
     private String sapCode;
 
-    @NotEmpty(message = "projectName không được để trống")
+//    @NotEmpty(message = "projectName không được để trống")
+    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "sapCode chỉ bao gồm số và chữ")
     @ExcelColum(colNum = 1)
     @TitleExcel(title = {"projectName"}, rowNum = {0}, colNum = {1})
     private String projectName;

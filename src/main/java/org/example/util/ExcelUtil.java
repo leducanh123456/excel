@@ -2,6 +2,7 @@ package org.example.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
+import org.example.antation.CheckIfNotNull;
 import org.example.antation.ExcelColum;
 import org.example.antation.ExcelMapping;
 import org.example.dto.ExcelDTO;
@@ -55,9 +56,9 @@ public class ExcelUtil {
         Set<String> cellNotCheck = new HashSet<>();
         for (Field field : fields) {
             ExcelColum excelColum = field.getAnnotation(ExcelColum.class);
-            // thiết lập metadata
-            if (excelColum == null) {
-                continue;
+            CheckIfNotNull checkIfNotNull = field.getAnnotation(CheckIfNotNull.class);
+            if (checkIfNotNull != null) {
+                cellNotCheck.add(field.getName());
             }
             field.setAccessible(true);
             int index = excelColum.colNum();
@@ -68,7 +69,6 @@ public class ExcelUtil {
                 field.set(t, null);
                 continue;
             }
-            // phải đi từ object để biết được lỗi
             if (fieldType.equals(String.class) && cell.getCellType().equals(CellType.STRING)) {
                 field.set(t, cell.getStringCellValue());
             } else if (fieldType.equals(Integer.class) && cell.getCellType().equals(CellType.NUMERIC)) {
@@ -89,13 +89,14 @@ public class ExcelUtil {
                 field.set(t, date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime());
             } else if (fieldType.equals(Boolean.class) && cell.getCellType().equals(CellType.BOOLEAN)) {
                 field.set(t, cell.getBooleanCellValue());
-            } else {
+            } else if (!cell.getCellType().equals(CellType.BLANK)) {
                 cellInValidType.add(field.getName());
             }
         }
         t.setCellInValidType(cellInValidType);
         t.setRowNumber(rowNum);
         t.setContentNumber(contentNum);
+        t.setCellNotCheck(cellNotCheck);
         return t;
     }
 

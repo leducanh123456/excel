@@ -51,6 +51,7 @@ public abstract class ExcelData<T extends ExcelDTO> {
             data.addAll(dataTmp);
         }
         ValidateExcel.validateData(data, validator, tClass);
+        ValidateExcel.checkPrimary(data, tClass);
         return data;
     }
     // lấy danh sách Lỗi
