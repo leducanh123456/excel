@@ -2,19 +2,19 @@ package org.example.validate;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.example.composite.ExcelCollection;
 import org.example.dto.ExcelDTO;
 import org.example.exception.ExcelNotValidException;
 import org.example.util.*;
 import org.springframework.validation.Validator;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Predicate;
 
-public abstract class ExcelData<T extends ExcelDTO> {
+public abstract class ExcelData<T extends ExcelDTO, R extends ExcelCollection<T>> {
     protected final Class<T> tClass;
     protected final Validator validator;
+    protected R excelCollection;
 
     /**
      * check class truoc
@@ -23,7 +23,8 @@ public abstract class ExcelData<T extends ExcelDTO> {
      *
      * @param tClass
      */
-    public ExcelData(Class<T> tClass, Validator validator) {
+    public ExcelData(R excelCollection, Class<T> tClass, Validator validator) {
+        this.excelCollection = excelCollection;
         this.tClass = tClass;
         this.validator = validator;
         Predicate<Class<T>> predicate = ValidateExcelMapping::checkAnnotationClass;
@@ -42,18 +43,14 @@ public abstract class ExcelData<T extends ExcelDTO> {
         }
     }
 
-    public List<T> getListFromExcel(Workbook workbook) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public void getListFromExcel(Workbook workbook) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         int[] readSheets = ExcelUtil.getReadSheet(workbook, tClass);
-        List<T> data = new ArrayList<>();
         for (int i = 0; i < readSheets.length; i++) {
             Sheet sheet = workbook.getSheetAt(i);
-            List<T> dataTmp = ExcelUtil.getListObjectFromExcel(sheet, tClass);
-            data.addAll(dataTmp);
+            ExcelUtil.getListObjectFromExcel(sheet, tClass, excelCollection);
         }
-        ValidateExcel.validateData(data, validator, tClass);
-        ValidateExcel.checkPrimary(data, tClass);
-        return data;
+        ValidateExcel.validateData(excelCollection.getData(), validator, tClass);
+        ValidateExcel.validateDataExcel(excelCollection, tClass);
+        ValidateExcel.checkPrimary(excelCollection.getData(), tClass);
     }
-    // lấy danh sách Lỗi
-
 }

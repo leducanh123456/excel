@@ -3,9 +3,8 @@ package org.example.util;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.example.antation.ExcelColum;
-import org.example.antation.ExcelPrimary;
-import org.example.antation.TitleExcel;
+import org.example.antation.*;
+import org.example.composite.ExcelCollection;
 import org.example.dto.ExcelDTO;
 import org.example.dto.ExcelError;
 import org.example.exception.DefineExcelException;
@@ -13,6 +12,8 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.validation.*;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -109,12 +110,13 @@ public class ValidateExcel {
                     excelError.setColNum(excelColum.colNum());
                     excelError.setTitleExcel(Arrays.asList(titleExcel.title()));
                     obj.getErrors().add(excelError);
+                    obj.getExcelCollection().getExcelErrors().add(excelError);
                 }
             }
         }
     }
 
-    public static <T extends ExcelDTO> void validateData(List<T> list, Validator validator, Class<T> excelClass) {
+    public static <T extends ExcelDTO> void validateData(List<T> list, Validator validator, Class<T> excelClass) throws InvocationTargetException, IllegalAccessException {
         for (T t : list) {
             List<ExcelError> errors = new ArrayList<>();
             Errors errorObject = new BeanPropertyBindingResult(t, "errorObject");
@@ -165,7 +167,32 @@ public class ValidateExcel {
                     errors.add(excelError);
                 }
             }
+            // chay cac ham lien quan den single error
+            Method[] methods = excelClass.getMethods();
+            for (int i = 0; i < methods.length; i++) {
+                if (methods[i].isAnnotationPresent(ValidateSingleError.class)) {
+                    Object result = methods[i].invoke(t);
+                    if (result != null) {
+                        errors.add((ExcelError) result);
+                    }
+                }
+            }
+
             t.setErrors(errors);
+            t.getExcelCollection().getExcelErrors().addAll(errors);
+        }
+    }
+    public static <T extends ExcelDTO, R extends ExcelCollection<T>> void validateDataExcel(R r, Class<T> excelClass) throws InvocationTargetException, IllegalAccessException {
+        CollectionExcelClass collectionExcelClass = excelClass.getAnnotation(CollectionExcelClass.class);
+        Class<R> classCollection = (Class<R>) collectionExcelClass.CompositeClass();
+        Method[] methods = classCollection.getMethods();
+        for (int i = 0; i < methods.length; i++) {
+            if (methods[i].isAnnotationPresent(ValidateListError.class)) {
+                Object result = methods[i].invoke(r);
+                if (result != null) {
+                    r.getExcelFileErrors().addAll((ArrayList) result);
+                }
+            }
         }
     }
 }

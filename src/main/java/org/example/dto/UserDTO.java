@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder
 @EqualsAndHashCode(callSuper = false)
 @ExcelMapping
 public class UserDTO extends ExcelDTO {

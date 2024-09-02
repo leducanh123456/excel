@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.example.antation.CheckIfNotNull;
 import org.example.antation.ExcelColum;
 import org.example.antation.ExcelMapping;
+import org.example.composite.ExcelCollection;
 import org.example.dto.ExcelDTO;
 import org.example.exception.NoSheetException;
 import org.springframework.util.ObjectUtils;
@@ -100,9 +101,9 @@ public class ExcelUtil {
         return t;
     }
 
-    public static <T extends ExcelDTO> List<T> getListObjectFromExcel(Sheet sheet, Class<T> excelClass) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        List<T> list = new ArrayList<>();
+    public static <T extends ExcelDTO, R extends ExcelCollection<T>> void getListObjectFromExcel(Sheet sheet, Class<T> excelClass, R r) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         ExcelMapping rowStart = excelClass.getAnnotation(ExcelMapping.class);
+        // -ktl
         if (ObjectUtils.isEmpty(rowStart)) {
             throw new RuntimeException("Không tồn tại row start");
         }
@@ -111,12 +112,13 @@ public class ExcelUtil {
                 continue;
             }
             T t = getObjectFromExcel(row, row.getRowNum(), row.getRowNum() - rowStart.startRow(), excelClass);
-            list.add(t);
+            t.setExcelCollection(r);
+            r.getData().add(t);
         }
-        return list;
     }
 
     public static <T extends ExcelDTO> int[] getReadSheet(Workbook workbook, Class<T> excelClass) {
+        // -ktl
         if (workbook.getNumberOfSheets() <= 0) {
             throw new NoSheetException("Sheet không tồn tại");
         }

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.example.composite.ExcelCollection;
 
 import java.util.List;
 import java.util.Set;
@@ -11,8 +12,9 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder
-public class ExcelDTO {
+public class ExcelDTO<T> {
+
+    private ExcelCollection<T> excelCollection;
     private Integer rowNumber;
     private Integer contentNumber;
     private Set<String> cellNotCheck;

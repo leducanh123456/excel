@@ -8,24 +8,21 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
-import org.example.antation.ExcelColum;
-import org.example.antation.ExcelMapping;
-import org.example.antation.ExcelPrimary;
-import org.example.antation.TitleExcel;
+import org.example.antation.*;
+import org.example.composite.ProjectExcelCollection;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder
 @EqualsAndHashCode(callSuper = false)
-@ExcelMapping(startRow = 1)
-public class ProjectExcelDTO extends ExcelDTO {
-
+@ExcelMapping(startRow = 0)
+@CollectionExcelClass(CompositeClass = ProjectExcelCollection.class)
+public class ProjectExcelDTO extends ExcelDTO<ProjectExcelDTO> {
     @NotEmpty(message = "sapCode không được để trống")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "sapCode chỉ bao gồm số và chữ")
     @ExcelColum(colNum = 0)
@@ -33,7 +30,7 @@ public class ProjectExcelDTO extends ExcelDTO {
     @TitleExcel(title = {"sapCode"}, rowNum = {0}, colNum = {0})
     private String sapCode;
 
-//    @NotEmpty(message = "projectName không được để trống")
+    @NotEmpty(message = "projectName không được để trống")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "sapCode chỉ bao gồm số và chữ")
     @ExcelColum(colNum = 1)
     @TitleExcel(title = {"projectName"}, rowNum = {0}, colNum = {1})
@@ -101,4 +98,22 @@ public class ProjectExcelDTO extends ExcelDTO {
     @TitleExcel(title = {"codeApproval"}, rowNum = {0}, colNum = {14})
     @ExcelPrimary
     private String codeApproval;
+
+    @ValidateSingleError
+    public ExcelError validateDateApproval() {
+        ExcelError excelError;
+        if (startDateApproval != null && endDateApproval != null) {
+            if (startDateApproval.isEqual(endDateApproval) || startDateApproval.isAfter(endDateApproval)) {
+                excelError = new ExcelError();
+                excelError.setTitleExcel(Arrays.asList("startDateApproval"));
+                excelError.setMessage("start date approval khong hop le");
+                excelError.setRowNum(this.getRowNumber());
+                excelError.setRowNumContent(this.getContentNumber());
+                excelError.setColNum(11);
+                return excelError;
+            }
+        }
+        return null;
+    }
+
 }

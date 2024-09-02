@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Validator;
 
 @Component
-public class UserExcelData extends ExcelData<UserDTO> {
-    private static final Class<UserDTO> userDTOClass = UserDTO.class;
-
-    @Autowired
-    public UserExcelData(Validator validator) {
-        super(userDTOClass, validator);
-    }
+public class UserExcelData {
+//    private static final Class<UserDTO> userDTOClass = UserDTO.class;
+//
+//    @Autowired
+//    public UserExcelData(Validator validator) {
+//        super(userDTOClass, validator);
+//    }
 }
