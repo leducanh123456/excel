@@ -17,12 +17,12 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.IntStream;
 
-public class ValidateExcel {
-    private ValidateExcel() {
+public class ProcessExcelUtil {
+    private ProcessExcelUtil() {
 
     }
 
-    public static <T extends ExcelDTO> Boolean validateHeaderMetaData(Class<T> headerClass) {
+    public static <T extends ExcelDTO<T>> Boolean validateHeaderMetaData(Class<T> headerClass) {
         Field[] fields = headerClass.getDeclaredFields();
         int tmp = 0;
         for (Field field : fields) {
@@ -56,7 +56,7 @@ public class ValidateExcel {
         return Boolean.FALSE;
     }
 
-    public static <T extends ExcelDTO> Boolean validateHeader(Class<T> headerClass, Sheet sheet) {
+    public static <T extends ExcelDTO<T>> Boolean validateHeader(Class<T> headerClass, Sheet sheet) {
         Boolean validateMetaData = validateHeaderMetaData(headerClass);
         if (!validateMetaData) {
             return validateMetaData;
@@ -81,13 +81,13 @@ public class ValidateExcel {
         return Boolean.TRUE;
     }
 
-    public static <T extends ExcelDTO> Errors getErrorFromExcelObject(T t, Validator validator) {
+    public static <T extends ExcelDTO<T>> Errors getErrorFromExcelObject(T t, Validator validator) {
         Errors errors = new BeanPropertyBindingResult(t, "error");
         validator.validate(t, errors);
         return errors;
     }
 
-    public static <T extends ExcelDTO> void checkPrimary(List<T> list, Class<T> t) throws IllegalAccessException {
+    public static <T extends ExcelDTO<T>> void checkPrimary(List<T> list, Class<T> t) throws IllegalAccessException {
         Field[] fields = t.getDeclaredFields();
         List<Field> fieldsPrimary = new ArrayList<>();
         for (int i = 0; i < fields.length; i++) {
@@ -116,7 +116,7 @@ public class ValidateExcel {
         }
     }
 
-    public static <T extends ExcelDTO> void validateData(List<T> list, Validator validator, Class<T> excelClass) throws InvocationTargetException, IllegalAccessException {
+    public static <T extends ExcelDTO<T>> void validateData(List<T> list, Validator validator, Class<T> excelClass) throws InvocationTargetException, IllegalAccessException {
         for (T t : list) {
             List<ExcelError> errors = new ArrayList<>();
             Errors errorObject = new BeanPropertyBindingResult(t, "errorObject");
@@ -182,7 +182,7 @@ public class ValidateExcel {
             t.getExcelCollection().getExcelErrors().addAll(errors);
         }
     }
-    public static <T extends ExcelDTO, R extends ExcelCollection<T>> void validateDataExcel(R r, Class<T> excelClass) throws InvocationTargetException, IllegalAccessException {
+    public static <T extends ExcelDTO<T>, R extends ExcelCollection<T>> void validateDataExcel(R r, Class<T> excelClass) throws InvocationTargetException, IllegalAccessException {
         ExcelCollectionClass collectionExcelClass = excelClass.getAnnotation(ExcelCollectionClass.class);
         Class<R> classCollection = (Class<R>) collectionExcelClass.colectionClass();
         Method[] methods = classCollection.getMethods();

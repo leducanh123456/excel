@@ -1,5 +1,6 @@
 package org.example.process;
 
+import lombok.Data;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.example.antation.ExcelCollectionClass;
@@ -13,7 +14,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.function.Predicate;
 
-public class ExcelProcess<T extends ExcelDTO, R extends ExcelCollection<T>> {
+@Data
+public class ExcelProcess<T extends ExcelDTO<T>, R extends ExcelCollection<T>> {
     protected final Class<T> tClass;
     protected final Validator validator;
     protected R excelCollection;
@@ -28,23 +30,15 @@ public class ExcelProcess<T extends ExcelDTO, R extends ExcelCollection<T>> {
     public ExcelProcess(Class<T> tClass, Validator validator) {
         try {
             ExcelCollectionClass collectionExcelClass = tClass.getAnnotation(ExcelCollectionClass.class);
-            Class<R> rClass = (Class<R>) collectionExcelClass.colectionClass();
-            Constructor<?> constructor = rClass.getConstructor();
-            R projectExcelCollection = (R) constructor.newInstance();
-            this.excelCollection = projectExcelCollection;
+            Class<? extends ExcelCollection<? extends ExcelDTO<?>>> rClass = collectionExcelClass.colectionClass();
+            Constructor<? extends ExcelCollection<? extends ExcelDTO<?>>> constructor = rClass.getConstructor();
+            ExcelCollection<? extends ExcelDTO<?>> objectCollection = constructor.newInstance();
+            if (rClass.isInstance(objectCollection)) {
+                this.setExcelCollection((R) objectCollection);
+            }
             this.tClass = tClass;
             this.validator = validator;
-            Predicate<Class<T>> predicate = ValidateExcelMapping::checkAnnotationClass;
-            Predicate<Class<T>> checkValid = predicate
-                    .and(ValidateExcelMapping::checkExcelMaxRow)
-                    .and(ValidateExcelMapping::checkExcelConfigPath)
-                    .and(ValidateExcelMapping::checkExcelValidReadSheet)
-                    .and(ValidateExcelMapping::checkExcelStartRow)
-                    .and(ValidateExcelMapping::checkExcelSMaxRow)
-                    .and(ValidateExcelColum::checkAllFieldIsAnnotation)
-                    .and(ValidateExcelColum::checkDuplicateAnnotationExcelColum)
-                    .and(ValidateTitleExcel::checkAllFieldIsAnnotation)
-                    .and(ValidateTitleExcel::checkListTitleAndColAndRow);
+            Predicate<Class<T>> checkValid = getClassPredicate();
             if (!checkValid.test(tClass)) {
                 throw new ExcelNotValidException("Cấu hình đọc excel không hợp lệ");
             }
@@ -53,15 +47,29 @@ public class ExcelProcess<T extends ExcelDTO, R extends ExcelCollection<T>> {
         }
     }
 
+    private static <T extends ExcelDTO<T>> Predicate<Class<T>> getClassPredicate() {
+        Predicate<Class<T>> predicate = ValidateExcelMappingUtil::checkAnnotationClass;
+        return predicate
+                .and(ValidateExcelMappingUtil::checkExcelMaxRow)
+                .and(ValidateExcelMappingUtil::checkExcelConfigPath)
+                .and(ValidateExcelMappingUtil::checkExcelValidReadSheet)
+                .and(ValidateExcelMappingUtil::checkExcelStartRow)
+                .and(ValidateExcelMappingUtil::checkExcelSMaxRow)
+                .and(ValidateExcelColumUtil::checkAllFieldIsAnnotation)
+                .and(ValidateExcelColumUtil::checkDuplicateAnnotationExcelColum)
+                .and(ValidateTitleExcelUtil::checkAllFieldIsAnnotation)
+                .and(ValidateTitleExcelUtil::checkListTitleAndColAndRow);
+    }
+
     public R getListFromExcel(Workbook workbook) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         int[] readSheets = ExcelUtil.getReadSheet(workbook, tClass);
         for (int i = 0; i < readSheets.length; i++) {
             Sheet sheet = workbook.getSheetAt(i);
             ExcelUtil.getListObjectFromExcel(sheet, tClass, excelCollection);
         }
-        ValidateExcel.validateData(excelCollection.getData(), validator, tClass);
-        ValidateExcel.validateDataExcel(excelCollection, tClass);
-        ValidateExcel.checkPrimary(excelCollection.getData(), tClass);
+        ProcessExcelUtil.validateData(excelCollection.getData(), validator, tClass);
+        ProcessExcelUtil.validateDataExcel(excelCollection, tClass);
+        ProcessExcelUtil.checkPrimary(excelCollection.getData(), tClass);
         return excelCollection;
     }
 }

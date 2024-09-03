@@ -24,7 +24,7 @@ public class ExcelUtil {
 
     }
 
-    public static <T extends ExcelDTO> Boolean checkValidConfigRowData(List<T> excelDTOS) {
+    public static <T extends ExcelDTO<T>> Boolean checkValidConfigRowData(List<T> excelDTOS) {
         if (ObjectUtils.isEmpty(excelDTOS)) {
             return Boolean.FALSE;
         }
@@ -32,15 +32,15 @@ public class ExcelUtil {
         return Boolean.TRUE;
     }
 
-    public static <T extends ExcelDTO> Optional<String> getPath(Class<T> excelClass) {
-        if (ValidateExcelMapping.checkExcelConfigPath(excelClass)) {
+    public static <T extends ExcelDTO<T>> Optional<String> getPath(Class<T> excelClass) {
+        if (ValidateExcelMappingUtil.checkExcelConfigPath(excelClass)) {
             ExcelMapping annotation = excelClass.getAnnotation(ExcelMapping.class);
             return Optional.of(annotation.path());
         }
         return Optional.empty();
     }
 
-    public static <T extends ExcelDTO> Integer getRowStart(Class<T> excelClass) {
+    public static <T extends ExcelDTO<T>> Integer getRowStart(Class<T> excelClass) {
         ExcelMapping annotation = excelClass.getAnnotation(ExcelMapping.class);
         return annotation.startRow();
     }
@@ -50,7 +50,7 @@ public class ExcelUtil {
         return Optional.empty();
     }
 
-    public static <T extends ExcelDTO> T getObjectFromExcel(Row row, int rowNum, int contentNum, Class<T> excelClass) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    public static <T extends ExcelDTO<T>> T getObjectFromExcel(Row row, int rowNum, int contentNum, Class<T> excelClass) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         T t = excelClass.getDeclaredConstructor().newInstance();
         Field[] fields = excelClass.getDeclaredFields();
         Set<String> cellInValidType = new HashSet<>();
@@ -101,7 +101,7 @@ public class ExcelUtil {
         return t;
     }
 
-    public static <T extends ExcelDTO, R extends ExcelCollection<T>> void getListObjectFromExcel(Sheet sheet, Class<T> excelClass, R r) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public static <T extends ExcelDTO<T>, R extends ExcelCollection<T>> void getListObjectFromExcel(Sheet sheet, Class<T> excelClass, R r) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         ExcelMapping rowStart = excelClass.getAnnotation(ExcelMapping.class);
         // -ktl
         if (ObjectUtils.isEmpty(rowStart)) {
@@ -117,7 +117,7 @@ public class ExcelUtil {
         }
     }
 
-    public static <T extends ExcelDTO> int[] getReadSheet(Workbook workbook, Class<T> excelClass) {
+    public static <T extends ExcelDTO<T>> int[] getReadSheet(Workbook workbook, Class<T> excelClass) {
         // -ktl
         if (workbook.getNumberOfSheets() <= 0) {
             throw new NoSheetException("Sheet không tồn tại");

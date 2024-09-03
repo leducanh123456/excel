@@ -8,12 +8,12 @@ import org.example.dto.ExcelDTO;
 import java.lang.reflect.Field;
 
 @Slf4j
-public class ValidateTitleExcel {
-    private ValidateTitleExcel() {
+public class ValidateTitleExcelUtil {
+    private ValidateTitleExcelUtil() {
 
     }
 
-    public static <T extends ExcelDTO> Boolean checkAllFieldIsAnnotation(Class<T> excelClass) {
+    public static <T extends ExcelDTO<T>> Boolean checkAllFieldIsAnnotation(Class<T> excelClass) {
         Field[] fields = excelClass.getDeclaredFields();
         for (Field field : fields) {
             if (!field.isAnnotationPresent(TitleExcel.class)) {
@@ -24,7 +24,7 @@ public class ValidateTitleExcel {
         return Boolean.TRUE;
     }
 
-    public static <T extends ExcelDTO> Boolean checkListTitleAndColAndRow(Class<T> excelClass) {
+    public static <T extends ExcelDTO<T>> Boolean checkListTitleAndColAndRow(Class<T> excelClass) {
         Field[] fields = excelClass.getDeclaredFields();
         for (Field field : fields) {
             TitleExcel titleExcel = field.getAnnotation(TitleExcel.class);

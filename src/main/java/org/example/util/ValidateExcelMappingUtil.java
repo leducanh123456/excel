@@ -7,12 +7,12 @@ import org.example.dto.ExcelDTO;
 import java.util.HashSet;
 import java.util.Set;
 @Slf4j
-public class ValidateExcelMapping {
+public class ValidateExcelMappingUtil {
 
-    private ValidateExcelMapping() {
+    private ValidateExcelMappingUtil() {
 
     }
-    public static <T extends ExcelDTO> Boolean checkAnnotationClass(Class<T> excelClass) {
+    public static <T extends ExcelDTO<T>> Boolean checkAnnotationClass(Class<T> excelClass) {
         if (excelClass.isAnnotationPresent(ExcelMapping.class)) {
             return Boolean.TRUE;
         }
@@ -20,7 +20,7 @@ public class ValidateExcelMapping {
         return Boolean.FALSE;
     }
 
-    public static <T extends ExcelDTO> Boolean checkExcelMaxRow(Class<T> excelClass) {
+    public static <T extends ExcelDTO<T>> Boolean checkExcelMaxRow(Class<T> excelClass) {
         ExcelMapping annotation = excelClass.getAnnotation(ExcelMapping.class);
         int maxRow = annotation.excelMaxRow();
         if (maxRow >= 0) {
@@ -30,7 +30,7 @@ public class ValidateExcelMapping {
         return Boolean.FALSE;
     }
 
-    public static <T extends ExcelDTO> Boolean checkExcelConfigPath(Class<T> excelClass) {
+    public static <T extends ExcelDTO<T>> Boolean checkExcelConfigPath(Class<T> excelClass) {
         ExcelMapping annotation = excelClass.getAnnotation(ExcelMapping.class);
         if (annotation.isResourceFolder() && !annotation.path().trim().isEmpty()) {
             return Boolean.FALSE;
@@ -38,7 +38,7 @@ public class ValidateExcelMapping {
         return Boolean.TRUE;
     }
 
-    public static <T extends ExcelDTO> Boolean checkExcelValidReadSheet(Class<T> excelClass) {
+    public static <T extends ExcelDTO<T>> Boolean checkExcelValidReadSheet(Class<T> excelClass) {
         ExcelMapping annotation = excelClass.getAnnotation(ExcelMapping.class);
         if (annotation.readAllSheet()) {
             return Boolean.TRUE;
@@ -58,7 +58,7 @@ public class ValidateExcelMapping {
         return Boolean.TRUE;
     }
 
-    public static <T extends ExcelDTO> Boolean checkExcelStartRow(Class<T> excelClass) {
+    public static <T extends ExcelDTO<T>> Boolean checkExcelStartRow(Class<T> excelClass) {
         ExcelMapping annotation = excelClass.getAnnotation(ExcelMapping.class);
         int startRow = annotation.startRow();
         if (startRow < 0) {
@@ -68,7 +68,7 @@ public class ValidateExcelMapping {
         return Boolean.TRUE;
     }
 
-    public static <T extends ExcelDTO> Boolean checkExcelSMaxRow(Class<T> excelClass) {
+    public static <T extends ExcelDTO<T>> Boolean checkExcelSMaxRow(Class<T> excelClass) {
         ExcelMapping annotation = excelClass.getAnnotation(ExcelMapping.class);
         int maxRow = annotation.excelMaxRow();
         if (maxRow < 0 || maxRow > 10000000) {

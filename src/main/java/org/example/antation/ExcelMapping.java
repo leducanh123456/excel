@@ -25,5 +25,6 @@ public @interface ExcelMapping {
     int excelMaxRow() default 0;
 
     boolean isResourceFolder() default false;
+
     String path() default "";
 }

@@ -100,6 +100,7 @@ public class ProjectExcelDTO extends ExcelDTO<ProjectExcelDTO> {
     private String codeApproval;
 
     @ValidateSingleError
+    @SuppressWarnings({"squid:S1144", "unused"})
     public ExcelError validateDateApproval() {
         ExcelError excelError;
         if (startDateApproval != null && endDateApproval != null) {

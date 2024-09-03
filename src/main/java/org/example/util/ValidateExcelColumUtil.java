@@ -9,11 +9,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Slf4j
-public class ValidateExcelColum {
-    private ValidateExcelColum() {
+public class ValidateExcelColumUtil {
+    private ValidateExcelColumUtil() {
 
     }
-    public static <T extends ExcelDTO> Boolean checkAllFieldIsAnnotation(Class<T> excelClass) {
+    public static <T extends ExcelDTO<T>> Boolean checkAllFieldIsAnnotation(Class<T> excelClass) {
         Field[] fields = excelClass.getDeclaredFields();
         for (Field field : fields) {
             if (!field.isAnnotationPresent(ExcelColum.class)) {
@@ -24,7 +24,7 @@ public class ValidateExcelColum {
         return Boolean.TRUE;
     }
 
-    public static <T extends ExcelDTO> Boolean checkDuplicateAnnotationExcelColum(Class<T> excelClass) {
+    public static <T extends ExcelDTO<T>> Boolean checkDuplicateAnnotationExcelColum(Class<T> excelClass) {
         Field[] fields = excelClass.getDeclaredFields();
         Set<Integer> uniqueElements = new HashSet<>();
         for(int i = 0; i < fields.length; i++) {

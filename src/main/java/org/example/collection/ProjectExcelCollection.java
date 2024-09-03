@@ -1,6 +1,7 @@
 package org.example.collection;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.example.antation.ValidateListError;
 import org.example.dto.ExcelError;
 import org.example.dto.ProjectExcelDTO;
@@ -8,9 +9,11 @@ import org.example.dto.ProjectExcelDTO;
 import java.util.ArrayList;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class ProjectExcelCollection extends ExcelCollection<ProjectExcelDTO> {
     @ValidateListError
+    @SuppressWarnings({"squid:S1144", "unused"})
     public List<ExcelError> validateExcelFile() {
         List<ExcelError> excelErrors = new ArrayList<>();
         if (this.getData().get(1).getBudget() != null && this.getData().get(2).getBudget() != null)
