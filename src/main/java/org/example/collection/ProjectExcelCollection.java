@@ -1,5 +1,6 @@
-package org.example.composite;
+package org.example.collection;
 
+import lombok.Data;
 import org.example.antation.ValidateListError;
 import org.example.dto.ExcelError;
 import org.example.dto.ProjectExcelDTO;
@@ -7,11 +8,8 @@ import org.example.dto.ProjectExcelDTO;
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class ProjectExcelCollection extends ExcelCollection<ProjectExcelDTO> {
-    public ProjectExcelCollection(List<ProjectExcelDTO> projectExcelDTOS) {
-        super(projectExcelDTOS);
-    }
-
     @ValidateListError
     public List<ExcelError> validateExcelFile() {
         List<ExcelError> excelErrors = new ArrayList<>();

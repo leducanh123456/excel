@@ -5,7 +5,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.example.antation.CheckIfNotNull;
 import org.example.antation.ExcelColum;
 import org.example.antation.ExcelMapping;
-import org.example.composite.ExcelCollection;
+import org.example.collection.ExcelCollection;
 import org.example.dto.ExcelDTO;
 import org.example.exception.NoSheetException;
 import org.springframework.util.ObjectUtils;

@@ -35,7 +35,6 @@ public class ValidateExcelMapping {
         if (annotation.isResourceFolder() && !annotation.path().trim().isEmpty()) {
             return Boolean.FALSE;
         }
-        log.error("Cấu hình resource không hợp lệ");
         return Boolean.TRUE;
     }
 

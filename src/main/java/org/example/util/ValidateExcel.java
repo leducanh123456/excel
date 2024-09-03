@@ -4,7 +4,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.example.antation.*;
-import org.example.composite.ExcelCollection;
+import org.example.collection.ExcelCollection;
 import org.example.dto.ExcelDTO;
 import org.example.dto.ExcelError;
 import org.example.exception.DefineExcelException;
@@ -183,8 +183,8 @@ public class ValidateExcel {
         }
     }
     public static <T extends ExcelDTO, R extends ExcelCollection<T>> void validateDataExcel(R r, Class<T> excelClass) throws InvocationTargetException, IllegalAccessException {
-        CollectionExcelClass collectionExcelClass = excelClass.getAnnotation(CollectionExcelClass.class);
-        Class<R> classCollection = (Class<R>) collectionExcelClass.CompositeClass();
+        ExcelCollectionClass collectionExcelClass = excelClass.getAnnotation(ExcelCollectionClass.class);
+        Class<R> classCollection = (Class<R>) collectionExcelClass.colectionClass();
         Method[] methods = classCollection.getMethods();
         for (int i = 0; i < methods.length; i++) {
             if (methods[i].isAnnotationPresent(ValidateListError.class)) {

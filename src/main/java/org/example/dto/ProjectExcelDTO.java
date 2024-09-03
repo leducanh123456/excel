@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.example.antation.*;
-import org.example.composite.ProjectExcelCollection;
+import org.example.collection.ProjectExcelCollection;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -20,8 +20,8 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@ExcelMapping(startRow = 0)
-@CollectionExcelClass(CompositeClass = ProjectExcelCollection.class)
+@ExcelMapping(startRow = 1)
+@ExcelCollectionClass(colectionClass = ProjectExcelCollection.class)
 public class ProjectExcelDTO extends ExcelDTO<ProjectExcelDTO> {
     @NotEmpty(message = "sapCode không được để trống")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "sapCode chỉ bao gồm số và chữ")
