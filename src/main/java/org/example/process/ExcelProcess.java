@@ -13,7 +13,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.function.Predicate;
 
-public abstract class ExcelProcess<T extends ExcelDTO, R extends ExcelCollection<T>> {
+public class ExcelProcess<T extends ExcelDTO, R extends ExcelCollection<T>> {
     protected final Class<T> tClass;
     protected final Validator validator;
     protected R excelCollection;

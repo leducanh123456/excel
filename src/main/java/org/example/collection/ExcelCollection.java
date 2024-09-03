@@ -15,7 +15,7 @@ public class ExcelCollection<T> {
     private List<ExcelError> excelFileErrors = new ArrayList<>();
 
     public Boolean excelIsError() {
-        return this.getExcelErrors().isEmpty() && this.getExcelFileErrors().isEmpty();
+        return !this.getExcelErrors().isEmpty() || !this.getExcelFileErrors().isEmpty();
     }
 
     public List<ExcelError> getAllError() {
