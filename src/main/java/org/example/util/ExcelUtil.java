@@ -2,7 +2,6 @@ package org.example.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
-import org.example.antation.CheckIfNotNull;
 import org.example.antation.ExcelColum;
 import org.example.antation.ExcelMapping;
 import org.example.collection.ExcelCollection;
@@ -57,10 +56,6 @@ public class ExcelUtil {
         Set<String> cellNotCheck = new HashSet<>();
         for (Field field : fields) {
             ExcelColum excelColum = field.getAnnotation(ExcelColum.class);
-            CheckIfNotNull checkIfNotNull = field.getAnnotation(CheckIfNotNull.class);
-            if (checkIfNotNull != null) {
-                cellNotCheck.add(field.getName());
-            }
             field.setAccessible(true);
             int index = excelColum.colNum();
             Cell cell = row.getCell(index);

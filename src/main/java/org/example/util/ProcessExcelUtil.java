@@ -100,6 +100,9 @@ public class ProcessExcelUtil {
             for (T obj : list) {
                 field.setAccessible(true);
                 Object value = field.get(obj);
+                if (value == null) {
+                    continue;
+                }
                 if (!idSet.add(value)) {
                     ExcelError excelError = new ExcelError();
                     excelError.setRowNum(obj.getRowNumber());
@@ -182,6 +185,7 @@ public class ProcessExcelUtil {
             t.getExcelCollection().getExcelErrors().addAll(errors);
         }
     }
+
     public static <T extends ExcelDTO<T>, R extends ExcelCollection<T>> void validateDataExcel(R r, Class<T> excelClass) throws InvocationTargetException, IllegalAccessException {
         ExcelCollectionClass collectionExcelClass = excelClass.getAnnotation(ExcelCollectionClass.class);
         Class<R> classCollection = (Class<R>) collectionExcelClass.colectionClass();

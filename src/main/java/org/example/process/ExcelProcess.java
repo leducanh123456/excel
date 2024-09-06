@@ -40,10 +40,10 @@ public class ExcelProcess<T extends ExcelDTO<T>, R extends ExcelCollection<T>> {
             this.validator = validator;
             Predicate<Class<T>> checkValid = getClassPredicate();
             if (!checkValid.test(tClass)) {
-                throw new ExcelNotValidException("Cấu hình đọc excel không hợp lệ");
+                throw new ExcelNotValidException("Config object excel invalid");
             }
         } catch (Exception e) {
-            throw new RuntimeException("Khong the khoi tao cac doi tuong do cau hinh sai");
+            throw new RuntimeException("Not init object read excel, config invalid");
         }
     }
 
@@ -58,7 +58,8 @@ public class ExcelProcess<T extends ExcelDTO<T>, R extends ExcelCollection<T>> {
                 .and(ValidateExcelColumUtil::checkAllFieldIsAnnotation)
                 .and(ValidateExcelColumUtil::checkDuplicateAnnotationExcelColum)
                 .and(ValidateTitleExcelUtil::checkAllFieldIsAnnotation)
-                .and(ValidateTitleExcelUtil::checkListTitleAndColAndRow);
+                .and(ValidateTitleExcelUtil::checkListTitleAndColAndRow)
+                .and(ValidateMethodErrorUtil::validateSingleError);
     }
 
     public R getListFromExcel(Workbook workbook) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
