@@ -2,7 +2,6 @@ package org.example.process;
 
 import lombok.Data;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.example.antation.ExcelCollectionClass;
 import org.example.collection.ExcelCollection;
 import org.example.dto.ExcelDTO;
@@ -57,12 +56,8 @@ public class ExcelProcess<T extends ExcelDTO<T>, R extends ExcelCollection<T>> {
                 .and(ValidateMethodErrorUtil::validateSingleError);
     }
 
-    public R getListFromExcel(Workbook workbook) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        int[] readSheets = ExcelUtil.getReadSheet(workbook, tClass);
-        for (int i = 0; i < readSheets.length; i++) {
-            Sheet sheet = workbook.getSheetAt(i);
-            ExcelUtil.getListObjectFromExcel(sheet, tClass, excelCollection);
-        }
+    public R getListFromExcel(Sheet sheet) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        ExcelUtil.getListObjectFromExcel(sheet, tClass, excelCollection);
         ProcessExcelUtil.validateData(excelCollection.getData(), validator, tClass);
         ProcessExcelUtil.validateDataExcel(excelCollection, tClass);
         ProcessExcelUtil.checkPrimary(excelCollection.getData(), tClass);

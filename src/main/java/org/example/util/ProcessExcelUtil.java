@@ -90,15 +90,14 @@ public class ProcessExcelUtil {
     public static <T extends ExcelDTO<T>> void checkPrimary(List<T> list, Class<T> t) throws IllegalAccessException {
         Field[] fields = t.getDeclaredFields();
         List<Field> fieldsPrimary = new ArrayList<>();
-        for (int i = 0; i < fields.length; i++) {
-            if (fields[i].getAnnotation(ExcelPrimary.class) != null) {
-                fieldsPrimary.add(fields[i]);
+        for (Field item : fields) {
+            if (item.getAnnotation(ExcelPrimary.class) != null) {
+                fieldsPrimary.add(item);
             }
         }
         for (Field field : fieldsPrimary) {
             Set<Object> idSet = new HashSet<>();
             for (T obj : list) {
-                field.setAccessible(true);
                 Object value = field.get(obj);
                 if (value == null) {
                     continue;
@@ -109,7 +108,8 @@ public class ProcessExcelUtil {
                     excelError.setRowNumContent(obj.getContentNumber());
                     TitleExcel titleExcel = field.getAnnotation(TitleExcel.class);
                     ExcelColum excelColum = field.getAnnotation(ExcelColum.class);
-                    excelError.setMessage("Giá trị không phải laf giá trị duy nhất");
+                    ExcelPrimary excelPrimary = field.getAnnotation(ExcelPrimary.class);
+                    excelError.setMessage(excelPrimary.message());
                     excelError.setColNum(excelColum.colNum());
                     excelError.setTitleExcel(Arrays.asList(titleExcel.title()));
                     obj.getErrors().add(excelError);

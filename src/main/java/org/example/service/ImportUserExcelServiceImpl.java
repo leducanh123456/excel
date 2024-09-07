@@ -29,7 +29,7 @@ public class ImportUserExcelServiceImpl implements ImportUserExcelService {
             Workbook workbook = new XSSFWorkbook(Files.newInputStream(tempFile));
             ExcelProcess<UserExcelDTO, UserExcelCollection> excelProcess = new ExcelProcess<>(UserExcelDTO.class, validator);
             Boolean  checkHeader = excelProcess.checkHeaderExcel(workbook.getSheetAt(0));
-            UserExcelCollection projectExcelCollection = excelProcess.getListFromExcel(workbook);
+            UserExcelCollection projectExcelCollection = excelProcess.getListFromExcel(workbook.getSheetAt(0));
             List<UserExcelDTO> projectExcelDTOS = projectExcelCollection.getData();
             if (projectExcelCollection.excelIsError()) {
                 List<ExcelError> excelErrors = projectExcelCollection.getAllError();

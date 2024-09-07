@@ -1,20 +1,23 @@
 package org.example.util;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.example.antation.ExcelColum;
 import org.example.antation.ExcelMapping;
 import org.example.collection.ExcelCollection;
 import org.example.dto.ExcelDTO;
-import org.example.exception.NoSheetException;
-import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Slf4j
 public class ExcelUtil {
@@ -23,26 +26,6 @@ public class ExcelUtil {
 
     }
 
-    public static <T extends ExcelDTO<T>> Boolean checkValidConfigRowData(List<T> excelDTOS) {
-        if (ObjectUtils.isEmpty(excelDTOS)) {
-            return Boolean.FALSE;
-        }
-        excelDTOS.stream().parallel().anyMatch(tmp -> ObjectUtils.isEmpty(tmp.getRowNumber()) || ObjectUtils.isEmpty(tmp.getContentNumber()) || tmp.getRowNumber().compareTo(0) < 0 || tmp.getContentNumber().compareTo(0) < 0);
-        return Boolean.TRUE;
-    }
-
-    public static <T extends ExcelDTO<T>> Optional<String> getPath(Class<T> excelClass) {
-        if (ValidateExcelMappingUtil.checkExcelConfigPath(excelClass)) {
-            ExcelMapping annotation = excelClass.getAnnotation(ExcelMapping.class);
-            return Optional.of(annotation.path());
-        }
-        return Optional.empty();
-    }
-
-    public static <T extends ExcelDTO<T>> Integer getRowStart(Class<T> excelClass) {
-        ExcelMapping annotation = excelClass.getAnnotation(ExcelMapping.class);
-        return annotation.startRow();
-    }
     public static <T extends ExcelDTO<T>> T getObjectFromExcel(Row row, int rowNum, int contentNum, Class<T> excelClass) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         T t = excelClass.getDeclaredConstructor().newInstance();
         Field[] fields = excelClass.getDeclaredFields();
@@ -100,20 +83,5 @@ public class ExcelUtil {
             t.setExcelCollection(r);
             r.getData().add(t);
         }
-    }
-
-    public static <T extends ExcelDTO<T>> int[] getReadSheet(Workbook workbook, Class<T> excelClass) {
-        if (workbook.getNumberOfSheets() <= 0) {
-            throw new NoSheetException("Sheet không tồn tại");
-        }
-        ExcelMapping excelMapping = excelClass.getAnnotation(ExcelMapping.class);
-        if (excelMapping.readAllSheet()) {
-            int[] sheets = new int[workbook.getNumberOfSheets()];
-            for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
-                sheets[i] = i;
-            }
-            return sheets;
-        }
-        return excelMapping.readSheet();
     }
 }

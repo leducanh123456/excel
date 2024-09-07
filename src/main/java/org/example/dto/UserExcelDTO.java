@@ -25,8 +25,8 @@ public class UserExcelDTO extends ExcelDTO<UserExcelDTO> {
     @NotEmpty(message = "aString không được để null hoặc empty")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "aString chỉ bao gồm số và chữ")
     @ExcelColum(colNum = 0)
-    @ExcelPrimary
-    @TitleExcel(title = {"aString"}, rowNum = {0}, colNum = {0})
+    @ExcelPrimary(message = "aString ối dồi ôi phải là duy nhất")
+    @TitleExcel(title = {"aString\nối dồi ôi"}, rowNum = {0}, colNum = {0})
     private String aString;
 
     @NotNull(message = "aInterger không được null")
