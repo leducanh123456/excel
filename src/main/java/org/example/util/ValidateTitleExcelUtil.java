@@ -1,6 +1,9 @@
 package org.example.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.example.antation.ExcelColum;
 import org.example.antation.TitleExcel;
 import org.example.dto.ExcelDTO;
@@ -34,7 +37,7 @@ public class ValidateTitleExcelUtil {
             }
             if (titleExcel.rowNum().length != titleExcel.colNum().length || titleExcel.colNum().length != titleExcel.title().length
                     || titleExcel.rowNum().length != titleExcel.title().length) {
-                log.error("ồn tại 1 col đang không được cấu hình title đúng cách");
+                log.error("tồn tại 1 col đang không được cấu hình title đúng cách");
                 return Boolean.FALSE;
             }
             ExcelColum excelColum = field.getAnnotation(ExcelColum.class);
@@ -45,6 +48,28 @@ public class ValidateTitleExcelUtil {
                 return Boolean.FALSE;
             }
         }
+        return Boolean.TRUE;
+    }
+
+    public static <T extends ExcelDTO<T>> Boolean checkHeaderExcel(Class<T> excelClass, Sheet sheet) {
+        Field[] fields = excelClass.getDeclaredFields();
+        // lấy danh sách các title của từng cột để check
+        for (Field field : fields) {
+            TitleExcel titleExcel = field.getAnnotation(TitleExcel.class);
+            String[] titles = titleExcel.title();
+            int[] rows = titleExcel.rowNum();
+            int[] cols = titleExcel.colNum();
+            for (int i = 0; i < titles.length; i++) {
+                Row row = sheet.getRow(rows[i]);
+                Cell cell = row.getCell(cols[i]);
+                String titleValue = cell.getStringCellValue();
+                if(!titles[i].equals(titleValue)){
+                    log.error("title {} không hợp lệ" , titles[i]);
+                    return Boolean.FALSE;
+                }
+            }
+        }
+
         return Boolean.TRUE;
     }
 }

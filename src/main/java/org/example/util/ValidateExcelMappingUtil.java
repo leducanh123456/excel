@@ -33,6 +33,7 @@ public class ValidateExcelMappingUtil {
     public static <T extends ExcelDTO<T>> Boolean checkExcelConfigPath(Class<T> excelClass) {
         ExcelMapping annotation = excelClass.getAnnotation(ExcelMapping.class);
         if (annotation.isResourceFolder() && !annotation.path().trim().isEmpty()) {
+            log.error("checkExcelConfigPath");
             return Boolean.FALSE;
         }
         return Boolean.TRUE;

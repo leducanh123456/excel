@@ -7,8 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 import org.example.antation.*;
+import org.example.collection.UserExcelCollection;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,8 +18,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-@ExcelMapping
-public class UserDTO extends ExcelDTO {
+@ExcelMapping(startRow = 4)
+@ExcelCollectionClass(colectionClass = UserExcelCollection.class)
+public class UserExcelDTO extends ExcelDTO<UserExcelDTO> {
 
     @NotEmpty(message = "aString không được để null hoặc empty")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "aString chỉ bao gồm số và chữ")

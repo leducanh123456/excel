@@ -43,12 +43,6 @@ public class ExcelUtil {
         ExcelMapping annotation = excelClass.getAnnotation(ExcelMapping.class);
         return annotation.startRow();
     }
-
-    public static Optional<String> getTitle() {
-
-        return Optional.empty();
-    }
-
     public static <T extends ExcelDTO<T>> T getObjectFromExcel(Row row, int rowNum, int contentNum, Class<T> excelClass) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         T t = excelClass.getDeclaredConstructor().newInstance();
         Field[] fields = excelClass.getDeclaredFields();
@@ -98,10 +92,6 @@ public class ExcelUtil {
 
     public static <T extends ExcelDTO<T>, R extends ExcelCollection<T>> void getListObjectFromExcel(Sheet sheet, Class<T> excelClass, R r) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         ExcelMapping rowStart = excelClass.getAnnotation(ExcelMapping.class);
-        // -ktl
-        if (ObjectUtils.isEmpty(rowStart)) {
-            throw new RuntimeException("Không tồn tại row start");
-        }
         for (Row row : sheet) {
             if (row.getRowNum() < rowStart.startRow()) {
                 continue;
@@ -113,7 +103,6 @@ public class ExcelUtil {
     }
 
     public static <T extends ExcelDTO<T>> int[] getReadSheet(Workbook workbook, Class<T> excelClass) {
-        // -ktl
         if (workbook.getNumberOfSheets() <= 0) {
             throw new NoSheetException("Sheet không tồn tại");
         }

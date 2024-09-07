@@ -68,4 +68,8 @@ public class ExcelProcess<T extends ExcelDTO<T>, R extends ExcelCollection<T>> {
         ProcessExcelUtil.checkPrimary(excelCollection.getData(), tClass);
         return excelCollection;
     }
+
+    public Boolean checkHeaderExcel(Sheet sheet) {
+        return ValidateTitleExcelUtil.checkHeaderExcel(tClass, sheet);
+    }
 }
