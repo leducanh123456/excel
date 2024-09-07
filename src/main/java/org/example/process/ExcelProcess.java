@@ -20,13 +20,7 @@ public class ExcelProcess<T extends ExcelDTO<T>, R extends ExcelCollection<T>> {
     protected final Validator validator;
     protected R excelCollection;
 
-    /**
-     * check class truoc
-     * check col sau
-     * check title sau cung
-     *
-     * @param tClass
-     */
+    @SuppressWarnings("unchecked")
     public ExcelProcess(Class<T> tClass, Validator validator) {
         try {
             ExcelCollectionClass collectionExcelClass = tClass.getAnnotation(ExcelCollectionClass.class);

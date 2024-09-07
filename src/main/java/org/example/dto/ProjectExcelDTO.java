@@ -10,12 +10,12 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.example.antation.*;
 import org.example.collection.ProjectExcelCollection;
-import org.springframework.data.annotation.Transient;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -27,7 +27,7 @@ public class ProjectExcelDTO extends ExcelDTO<ProjectExcelDTO> {
 
     @NotEmpty(message = "sapCode không được để trống")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "sapCode chỉ bao gồm số và chữ")
-    @ExcelColum(colNum = 0)
+    @ExcelColum
     @ExcelPrimary
     @TitleExcel(title = {"sapCode"}, rowNum = {0}, colNum = {0})
     private String sapCode;
@@ -40,8 +40,8 @@ public class ProjectExcelDTO extends ExcelDTO<ProjectExcelDTO> {
 
     @ExcelColum(colNum = 2)
     @TitleExcel(title = {"budget"}, rowNum = {0}, colNum = {2})
-    @DecimalMin(value = "0.00", inclusive = true, message = "Value must be at least 0.00")
-    @DecimalMax(value = "1000.00", inclusive = true, message = "Value must be no more than 1000.00")
+    @DecimalMin(value = "0.00", message = "Value must be at least 0.00")
+    @DecimalMax(value = "1000.00", message = "Value must be no more than 1000.00")
     @ExcelPrimary
     private BigDecimal budget;
 
@@ -108,7 +108,7 @@ public class ProjectExcelDTO extends ExcelDTO<ProjectExcelDTO> {
         if (startDateApproval != null && endDateApproval != null) {
             if (startDateApproval.isEqual(endDateApproval) || startDateApproval.isAfter(endDateApproval)) {
                 excelError = new ExcelError();
-                excelError.setTitleExcel(Arrays.asList("startDateApproval"));
+                excelError.setTitleExcel(List.of("startDateApproval"));
                 excelError.setMessage("start date approval khong hop le");
                 excelError.setRowNum(this.getRowNumber());
                 excelError.setRowNumContent(this.getContentNumber());
@@ -118,7 +118,6 @@ public class ProjectExcelDTO extends ExcelDTO<ProjectExcelDTO> {
         }
         return null;
     }
-
 
 
 }

@@ -17,11 +17,11 @@ public class ValidateMethodErrorUtil {
     public static <T extends ExcelDTO<T>> Boolean validateSingleError(Class<T> excelClass) {
 
         Method[] methods = excelClass.getMethods();
-        for (int i = 0; i < methods.length; i++) {
-            if (methods[i].isAnnotationPresent(ValidateSingleError.class)) {
-                Class<?> returnType = methods[i].getReturnType();
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(ValidateSingleError.class)) {
+                Class<?> returnType = method.getReturnType();
                 if (!ExcelError.class.isAssignableFrom(returnType)) {
-                    log.error("method {} invalid", methods[i].getName());
+                    log.error("method {} invalid", method.getName());
                     return Boolean.FALSE;
                 }
             }
