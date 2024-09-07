@@ -24,8 +24,6 @@ import java.util.Date;
 @ExcelMapping(startRow = 1)
 @ExcelCollectionClass(colectionClass = ProjectExcelCollection.class)
 public class ProjectExcelDTO extends ExcelDTO<ProjectExcelDTO> {
-    @Transient
-    private String entityCode="aaaaaaaaaaaaaaaaa";
 
     @NotEmpty(message = "sapCode không được để trống")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "sapCode chỉ bao gồm số và chữ")

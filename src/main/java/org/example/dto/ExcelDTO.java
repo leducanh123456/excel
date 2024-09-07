@@ -12,7 +12,6 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExcelDTO<T> {
-
     private ExcelCollection<T> excelCollection;
     private Integer rowNumber;
     private Integer contentNumber;

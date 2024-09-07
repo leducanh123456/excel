@@ -30,16 +30,17 @@ public class ExcelProcess<T extends ExcelDTO<T>, R extends ExcelCollection<T>> {
     public ExcelProcess(Class<T> tClass, Validator validator) {
         try {
             ExcelCollectionClass collectionExcelClass = tClass.getAnnotation(ExcelCollectionClass.class);
-            Class<? extends ExcelCollection<? extends ExcelDTO<?>>> rClass = collectionExcelClass.colectionClass();
-            Constructor<? extends ExcelCollection<? extends ExcelDTO<?>>> constructor = rClass.getConstructor();
-            ExcelCollection<? extends ExcelDTO<?>> objectCollection = constructor.newInstance();
+            Class<R> rClass = (Class<R>) collectionExcelClass.colectionClass();
+            Constructor<R> constructor = rClass.getConstructor();
+            R objectCollection = constructor.newInstance();
             if (rClass.isInstance(objectCollection)) {
-                this.setExcelCollection((R) objectCollection);
+                this.setExcelCollection(objectCollection);
             }
             this.tClass = tClass;
             this.validator = validator;
             Predicate<Class<T>> checkValid = getClassPredicate();
-            if (!checkValid.test(tClass)) {
+            Predicate<Class<R>> checkValidCollection = ValidateMethodErrorUtil::validateListError;
+            if (!(checkValid.test(tClass) && checkValidCollection.test((Class<R>) excelCollection.getClass()))) {
                 throw new ExcelNotValidException("Config object excel invalid");
             }
         } catch (Exception e) {
