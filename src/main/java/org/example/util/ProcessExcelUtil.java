@@ -24,12 +24,8 @@ public class ProcessExcelUtil {
 
     public static <T extends ExcelDTO<T>> Boolean validateHeaderMetaData(Class<T> headerClass) {
         Field[] fields = headerClass.getDeclaredFields();
-        int tmp = 0;
         for (Field field : fields) {
             TitleExcel titleExcel = field.getAnnotation(TitleExcel.class);
-            if (titleExcel == null) {
-                continue;
-            }
             String[] titles = titleExcel.title();
             int[] rows = titleExcel.rowNum();
             int[] cols = titleExcel.colNum();
@@ -46,10 +42,6 @@ public class ProcessExcelUtil {
             }
             if (intStreamCol.anyMatch(tmpInt -> tmpInt < 0)) {
                 throw new DefineExcelException("Định nghĩa độ sâu của tile không hợp lệ");
-            }
-            tmp++;
-            if (tmp == 0) {
-                throw new DefineExcelException("Class định nghĩa cho title excel không hợp lệ");
             }
             return Boolean.TRUE;
         }
@@ -80,13 +72,6 @@ public class ProcessExcelUtil {
         }
         return Boolean.TRUE;
     }
-
-    public static <T extends ExcelDTO<T>> Errors getErrorFromExcelObject(T t, Validator validator) {
-        Errors errors = new BeanPropertyBindingResult(t, "error");
-        validator.validate(t, errors);
-        return errors;
-    }
-
     public static <T extends ExcelDTO<T>> void checkPrimary(List<T> list, Class<T> t) throws IllegalAccessException {
         Field[] fields = t.getDeclaredFields();
         List<Field> fieldsPrimary = new ArrayList<>();
@@ -130,9 +115,9 @@ public class ProcessExcelUtil {
             addCellInvalidType(excelClass, t, cellInvalidType);
             // chay cac ham lien quan den single error
             Method[] methods = excelClass.getMethods();
-            for (int i = 0; i < methods.length; i++) {
-                if (methods[i].isAnnotationPresent(ValidateSingleError.class)) {
-                    Object result = methods[i].invoke(t);
+            for (Method method : methods) {
+                if (method.isAnnotationPresent(ValidateSingleError.class)) {
+                    Object result = method.invoke(t);
                     if (result != null) {
                         t.getErrors().add((ExcelError) result);
                     }
@@ -157,10 +142,10 @@ public class ProcessExcelUtil {
                 excelError.setRowNum(t.getRowNumber());
                 excelError.setRowNumContent(t.getContentNumber());
                 excelError.setMessage(fieldError.getDefaultMessage());
-                for (int i = 0; i < fields.length; i++) {
-                    if (fields[i].getName().equals(fieldError.getField())) {
-                        TitleExcel titleExcel = fields[i].getAnnotation(TitleExcel.class);
-                        ExcelColum excelColum = fields[i].getAnnotation(ExcelColum.class);
+                for (Field field : fields) {
+                    if (field.getName().equals(fieldError.getField())) {
+                        TitleExcel titleExcel = field.getAnnotation(TitleExcel.class);
+                        ExcelColum excelColum = field.getAnnotation(ExcelColum.class);
                         excelError.setTitleExcel(Arrays.asList(titleExcel.title()));
                         excelError.setColNum(excelColum.colNum());
                     }
@@ -178,10 +163,10 @@ public class ProcessExcelUtil {
                 excelError.setRowNumContent(t.getContentNumber());
                 excelError.setMessage("Không đúng định dạng dữ liệu");
                 Field[] fields = excelClass.getDeclaredFields();
-                for (int i = 0; i < fields.length; i++) {
-                    if (fields[i].getName().equals(cell)) {
-                        TitleExcel titleExcel = fields[i].getAnnotation(TitleExcel.class);
-                        ExcelColum excelColum = fields[i].getAnnotation(ExcelColum.class);
+                for (Field field : fields) {
+                    if (field.getName().equals(cell)) {
+                        TitleExcel titleExcel = field.getAnnotation(TitleExcel.class);
+                        ExcelColum excelColum = field.getAnnotation(ExcelColum.class);
                         excelError.setTitleExcel(Arrays.asList(titleExcel.title()));
                         excelError.setColNum(excelColum.colNum());
                     }
@@ -195,9 +180,9 @@ public class ProcessExcelUtil {
         ExcelCollectionClass collectionExcelClass = excelClass.getAnnotation(ExcelCollectionClass.class);
         Class<R> classCollection = (Class<R>) collectionExcelClass.colectionClass();
         Method[] methods = classCollection.getMethods();
-        for (int i = 0; i < methods.length; i++) {
-            if (methods[i].isAnnotationPresent(ValidateListError.class)) {
-                Object result = methods[i].invoke(r);
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(ValidateListError.class)) {
+                Object result = method.invoke(r);
                 if (result != null) {
                     r.getExcelFileErrors().addAll((ArrayList) result);
                 }
