@@ -27,43 +27,43 @@ public class UserExcelDTO extends ExcelDTO<UserExcelDTO> {
     @ExcelColum(colNum = 0)
     @ExcelPrimary(message = "aString ối dồi ôi phải là duy nhất")
     @TitleExcel(title = {"aString\nối dồi ôi"}, rowNum = {0}, colNum = {0})
-    private String aString;
+    public String aString;
 
     @NotNull(message = "aInterger không được null")
     @ExcelColum(colNum = 1)
     @TitleExcel(title = {"aInteger"}, rowNum = {0}, colNum = {1})
-    private Integer aInteger;
+    public Integer aInteger;
 
     @NotNull(message = "aBoolean không được null")
     @ExcelColum(colNum = 2)
     @TitleExcel(title = {"aBoolean"}, rowNum = {0}, colNum = {2})
-    private Boolean aBoolean;
+    public Boolean aBoolean;
 
     @NotNull(message = "aBigDecimal không được null")
     @ExcelColum(colNum = 3)
     @TitleExcel(title = {"aBigDecimal"}, rowNum = {0}, colNum = {3})
-    private BigDecimal aBigDecimal;
+    public BigDecimal aBigDecimal;
 
     //nhóm cao nhất
     @NotNull(message = "aLocalDate không được null")
     @ExcelColum(colNum = 4)
     @TitleExcel(title = {"Tổng hợp 1", "aLocalDate"}, rowNum = {0, 1}, colNum = {4, 4})
-    private LocalDate aLocalDate;
+    public LocalDate aLocalDate;
 
     // 1 nhóm nữa
     @NotNull(message = "aTerger không được null")
     @ExcelColum(colNum = 5)
     @TitleExcel(title = {"Tổng hợp 1", "Tổng hợp 2", "aLocalDateTime"}, rowNum = {0, 1, 2}, colNum = {4, 5, 5})
-    private LocalDateTime aLocalDateTime;
+    public LocalDateTime aLocalDateTime;
 
     //1 nhóm
     @NotNull(message = "aDouble không được null")
     @ExcelColum(colNum = 6)
     @TitleExcel(title = {"Tổng hợp 1", "Tổng hợp 2", "Tổng hợp 3", "aDouble"}, rowNum = {0, 1, 2, 3}, colNum = {4, 5, 6, 6})
-    private Double aDouble;
+    public Double aDouble;
 
     @NotNull(message = "aFloat không được null")
     @ExcelColum(colNum = 7)
     @TitleExcel(title = {"Tổng hợp 1", "Tổng hợp 2", "Tổng hợp 3", "aFloat"}, rowNum = {0, 1, 2, 3}, colNum = {4, 5, 6, 7})
-    private Float aFloat;
+    public Float aFloat;
 }

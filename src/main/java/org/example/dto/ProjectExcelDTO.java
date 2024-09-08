@@ -29,76 +29,76 @@ public class ProjectExcelDTO extends ExcelDTO<ProjectExcelDTO> {
     @ExcelColum
     @ExcelPrimary
     @TitleExcel(title = {"sapCode"}, rowNum = {0}, colNum = {0})
-    private String sapCode;
+    public String sapCode;
 
     @NotEmpty(message = "projectName không được để trống")
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "sapCode chỉ bao gồm số và chữ")
     @ExcelColum(colNum = 1)
     @TitleExcel(title = {"projectName"}, rowNum = {0}, colNum = {1})
-    private String projectName;
+    public String projectName;
 
     @ExcelColum(colNum = 2)
     @TitleExcel(title = {"budget"}, rowNum = {0}, colNum = {2})
     @DecimalMin(value = "0.00", message = "Value must be at least 0.00")
     @DecimalMax(value = "1000.00", message = "Value must be no more than 1000.00")
     @ExcelPrimary
-    private BigDecimal budget;
+    public BigDecimal budget;
 
     @ExcelColum(colNum = 3)
     @TitleExcel(title = {"startDate"}, rowNum = {0}, colNum = {3})
     @ExcelPrimary
-    private Date startDate;
+    public Date startDate;
 
     @ExcelColum(colNum = 4)
     @TitleExcel(title = {"endDate"}, rowNum = {0}, colNum = {4})
-    private Date endDate;
+    public Date endDate;
 
     @ExcelColum(colNum = 5)
     @TitleExcel(title = {"total"}, rowNum = {0}, colNum = {5})
-    private Integer total;
+    public Integer total;
 
     @NotEmpty(message = "budget không được để trống")
     @ExcelColum(colNum = 6)
     @TitleExcel(title = {"code"}, rowNum = {0}, colNum = {6})
-    private String code;
+    public String code;
 
     //Policy
     @ExcelColum(colNum = 7)
     @TitleExcel(title = {"startDatePolicy"}, rowNum = {0}, colNum = {7})
-    private Date startDatePolicy;
+    public Date startDatePolicy;
 
     @ExcelColum(colNum = 8)
     @TitleExcel(title = {"endDatePolicy"}, rowNum = {0}, colNum = {8})
-    private Date endDatePolicy;
+    public Date endDatePolicy;
 
     @ExcelColum(colNum = 9)
     @TitleExcel(title = {"budgetPolicy"}, rowNum = {0}, colNum = {9})
-    private Integer budgetPolicy;
+    public Integer budgetPolicy;
 
     @ExcelColum(colNum = 10)
     @TitleExcel(title = {"codePolicy"}, rowNum = {0}, colNum = {10})
     @ExcelPrimary
-    private String codePolicy;
+    public String codePolicy;
 
     //Approval
     @ExcelColum(colNum = 11)
     @TitleExcel(title = {"startDateApproval"}, rowNum = {0}, colNum = {11})
     @ExcelPrimary
-    private LocalDate startDateApproval;
+    public LocalDate startDateApproval;
 
     @ExcelColum(colNum = 12)
     @TitleExcel(title = {"endDateApproval"}, rowNum = {0}, colNum = {12})
-    private LocalDate endDateApproval;
+    public LocalDate endDateApproval;
 
     @ExcelColum(colNum = 13)
     @TitleExcel(title = {"totalApproval"}, rowNum = {0}, colNum = {13})
-    private Integer totalApproval;
+    public Integer totalApproval;
 
     @NotEmpty(message = "budget không được để trống")
     @ExcelColum(colNum = 14)
     @TitleExcel(title = {"codeApproval"}, rowNum = {0}, colNum = {14})
     @ExcelPrimary
-    private String codeApproval;
+    public String codeApproval;
 
     @ValidateSingleError
     @SuppressWarnings({"squid:S1144", "unused"})

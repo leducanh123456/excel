@@ -121,68 +121,73 @@ public class ProcessExcelUtil {
 
     public static <T extends ExcelDTO<T>> void validateData(List<T> list, Validator validator, Class<T> excelClass) throws InvocationTargetException, IllegalAccessException {
         for (T t : list) {
-            List<ExcelError> errors = new ArrayList<>();
             Errors errorObject = new BeanPropertyBindingResult(t, "errorObject");
             validator.validate(t, errorObject);
             List<ObjectError> objectErrors = errorObject.getAllErrors();
             Set<String> cellNotCheck = t.getCellNotCheck();
             Set<String> cellInvalidType = t.getCellInValidType();
-            for (ObjectError objectError : objectErrors) {
-                if (objectError instanceof FieldError) {
-                    FieldError fieldError = (FieldError) objectError;
-                    if (!ObjectUtils.isEmpty(cellNotCheck) && cellNotCheck.contains(fieldError.getField())) {
-                        continue;
-                    }
-                    if (!ObjectUtils.isEmpty(cellInvalidType) && cellInvalidType.contains(fieldError.getField())) {
-                        continue;
-                    }
-                    Field[] fields = excelClass.getDeclaredFields();
-                    ExcelError excelError = new ExcelError();
-                    excelError.setRowNum(t.getRowNumber());
-                    excelError.setRowNumContent(t.getContentNumber());
-                    excelError.setMessage(fieldError.getDefaultMessage());
-                    for (int i = 0; i < fields.length; i++) {
-                        if (fields[i].getName().equals(fieldError.getField())) {
-                            TitleExcel titleExcel = fields[i].getAnnotation(TitleExcel.class);
-                            ExcelColum excelColum = fields[i].getAnnotation(ExcelColum.class);
-                            excelError.setTitleExcel(Arrays.asList(titleExcel.title()));
-                            excelError.setColNum(excelColum.colNum());
-                        }
-                    }
-                    errors.add(excelError);
-                }
-            }
-            if (cellInvalidType != null) {
-                for (String cell : cellInvalidType) {
-                    ExcelError excelError = new ExcelError();
-                    excelError.setRowNum(t.getRowNumber());
-                    excelError.setRowNumContent(t.getContentNumber());
-                    excelError.setMessage(cell + " : Không đúng định dạng dữ liệu");
-                    Field[] fields = excelClass.getDeclaredFields();
-                    for (int i = 0; i < fields.length; i++) {
-                        if (fields[i].getName().equals(cell)) {
-                            TitleExcel titleExcel = fields[i].getAnnotation(TitleExcel.class);
-                            ExcelColum excelColum = fields[i].getAnnotation(ExcelColum.class);
-                            excelError.setTitleExcel(Arrays.asList(titleExcel.title()));
-                            excelError.setColNum(excelColum.colNum());
-                        }
-                    }
-                    errors.add(excelError);
-                }
-            }
+            addErrorFromValidation(excelClass, t, objectErrors, cellNotCheck, cellInvalidType);
+            addCellInvalidType(excelClass, t, cellInvalidType);
             // chay cac ham lien quan den single error
             Method[] methods = excelClass.getMethods();
             for (int i = 0; i < methods.length; i++) {
                 if (methods[i].isAnnotationPresent(ValidateSingleError.class)) {
                     Object result = methods[i].invoke(t);
                     if (result != null) {
-                        errors.add((ExcelError) result);
+                        t.getErrors().add((ExcelError) result);
                     }
                 }
             }
+            t.getExcelCollection().getExcelErrors().addAll(t.getErrors());
+        }
+    }
 
-            t.setErrors(errors);
-            t.getExcelCollection().getExcelErrors().addAll(errors);
+    protected static <T extends ExcelDTO<T>> void addErrorFromValidation(Class<T> excelClass, T t, List<ObjectError> objectErrors, Set<String> cellNotCheck, Set<String> cellInvalidType) {
+        for (ObjectError objectError : objectErrors) {
+            if (objectError instanceof FieldError) {
+                FieldError fieldError = (FieldError) objectError;
+                if (!ObjectUtils.isEmpty(cellNotCheck) && cellNotCheck.contains(fieldError.getField())) {
+                    continue;
+                }
+                if (!ObjectUtils.isEmpty(cellInvalidType) && cellInvalidType.contains(fieldError.getField())) {
+                    continue;
+                }
+                Field[] fields = excelClass.getDeclaredFields();
+                ExcelError excelError = new ExcelError();
+                excelError.setRowNum(t.getRowNumber());
+                excelError.setRowNumContent(t.getContentNumber());
+                excelError.setMessage(fieldError.getDefaultMessage());
+                for (int i = 0; i < fields.length; i++) {
+                    if (fields[i].getName().equals(fieldError.getField())) {
+                        TitleExcel titleExcel = fields[i].getAnnotation(TitleExcel.class);
+                        ExcelColum excelColum = fields[i].getAnnotation(ExcelColum.class);
+                        excelError.setTitleExcel(Arrays.asList(titleExcel.title()));
+                        excelError.setColNum(excelColum.colNum());
+                    }
+                }
+                t.getErrors().add(excelError);
+            }
+        }
+    }
+
+    protected static <T extends ExcelDTO<T>> void addCellInvalidType(Class<T> excelClass, T t, Set<String> cellInvalidType) {
+        if (cellInvalidType != null) {
+            for (String cell : cellInvalidType) {
+                ExcelError excelError = new ExcelError();
+                excelError.setRowNum(t.getRowNumber());
+                excelError.setRowNumContent(t.getContentNumber());
+                excelError.setMessage("Không đúng định dạng dữ liệu");
+                Field[] fields = excelClass.getDeclaredFields();
+                for (int i = 0; i < fields.length; i++) {
+                    if (fields[i].getName().equals(cell)) {
+                        TitleExcel titleExcel = fields[i].getAnnotation(TitleExcel.class);
+                        ExcelColum excelColum = fields[i].getAnnotation(ExcelColum.class);
+                        excelError.setTitleExcel(Arrays.asList(titleExcel.title()));
+                        excelError.setColNum(excelColum.colNum());
+                    }
+                }
+                t.getErrors().add(excelError);
+            }
         }
     }
 

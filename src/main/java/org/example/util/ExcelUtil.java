@@ -9,6 +9,7 @@ import org.example.antation.ExcelColum;
 import org.example.antation.ExcelMapping;
 import org.example.collection.ExcelCollection;
 import org.example.dto.ExcelDTO;
+import org.example.dto.ExcelError;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -26,17 +27,47 @@ public class ExcelUtil {
 
     }
 
+    public static <T extends ExcelDTO<T>> int maxColum(Class<T> excelClass) {
+        Field[] fields = excelClass.getDeclaredFields();
+        int col = 0;
+        for (Field field : fields) {
+            ExcelColum excelColum = field.getAnnotation(ExcelColum.class);
+            int index = excelColum.colNum();
+            if (col < index) {
+                col = index;
+            }
+        }
+        return col;
+    }
+
     public static <T extends ExcelDTO<T>> T getObjectFromExcel(Row row, int rowNum, int contentNum, Class<T> excelClass) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         T t = excelClass.getDeclaredConstructor().newInstance();
         Field[] fields = excelClass.getDeclaredFields();
         Set<String> cellInValidType = new HashSet<>();
         Set<String> cellNotCheck = new HashSet<>();
+        setDataFromExcel(row, fields, t, cellInValidType);
+        int maxCol = ExcelUtil.maxColum(excelClass);
+        int lastCellNum = row.getLastCellNum();
+        t.setCellInValidType(cellInValidType);
+        t.setRowNumber(rowNum);
+        t.setContentNumber(contentNum);
+        t.setCellNotCheck(cellNotCheck);
+        if (maxCol < lastCellNum) {
+            ExcelError excelError = new ExcelError();
+            excelError.setRowNum(t.getRowNumber());
+            excelError.setRowNumContent(t.getContentNumber());
+            excelError.setMessage("Số cột không hợp lệ");
+            t.getErrors().add(excelError);
+        }
+        return t;
+    }
+
+    protected static <T extends ExcelDTO<T>> void setDataFromExcel(Row row, Field[] fields, T t, Set<String> cellInValidType) throws IllegalAccessException {
         for (Field field : fields) {
             ExcelColum excelColum = field.getAnnotation(ExcelColum.class);
             field.setAccessible(true);
             int index = excelColum.colNum();
             Cell cell = row.getCell(index);
-
             Class<?> fieldType = field.getType();
             if (cell == null) {
                 field.set(t, null);
@@ -65,12 +96,8 @@ public class ExcelUtil {
             } else if (!cell.getCellType().equals(CellType.BLANK)) {
                 cellInValidType.add(field.getName());
             }
+
         }
-        t.setCellInValidType(cellInValidType);
-        t.setRowNumber(rowNum);
-        t.setContentNumber(contentNum);
-        t.setCellNotCheck(cellNotCheck);
-        return t;
     }
 
     public static <T extends ExcelDTO<T>, R extends ExcelCollection<T>> void getListObjectFromExcel(Sheet sheet, Class<T> excelClass, R r) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {

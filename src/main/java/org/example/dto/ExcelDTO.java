@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.example.collection.ExcelCollection;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -12,11 +13,11 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExcelDTO<T> {
-    private ExcelCollection<T> excelCollection;
-    private Integer rowNumber;
-    private Integer contentNumber;
-    private Set<String> cellNotCheck;
-    private Set<String> cellInValidType;
-    private List<String> titles;
-    private List<ExcelError> errors;
+    public ExcelCollection<T> excelCollection;
+    public Integer rowNumber;
+    public Integer contentNumber;
+    public Set<String> cellNotCheck;
+    public Set<String> cellInValidType;
+    public List<String> titles;
+    public List<ExcelError> errors = new ArrayList<>();
 }
