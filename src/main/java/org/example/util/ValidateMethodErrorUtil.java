@@ -14,6 +14,9 @@ import java.util.List;
 @Slf4j
 public class ValidateMethodErrorUtil {
 
+    private ValidateMethodErrorUtil() {
+    }
+
     public static <T extends ExcelDTO<T>> Boolean validateSingleError(Class<T> excelClass) {
 
         Method[] methods = excelClass.getMethods();
@@ -32,40 +35,39 @@ public class ValidateMethodErrorUtil {
     public static <R> Boolean validateListError(Class<R> collectionClass) {
         Method[] methods = collectionClass.getMethods();
         for (Method method : methods) {
-            if (method.isAnnotationPresent(ValidateListError.class)) {
-                if (!isValidMethodReturnType(method)) {
-                    log.error("Method {} has invalid return type", method.getName());
-                    return Boolean.FALSE;
-                }
+            boolean tmp = isValidMethodReturnType(method);
+            if (method.isAnnotationPresent(ValidateListError.class) && !tmp) {
+                log.error("Method {} has invalid return type", method.getName());
+                return Boolean.FALSE;
             }
         }
         return Boolean.TRUE;
     }
 
-    private static boolean isValidMethodReturnType(Method method) {
+    private static Boolean isValidMethodReturnType(Method method) {
         Type returnType = method.getGenericReturnType();
+        Boolean tmp = Boolean.FALSE;
         if (returnType instanceof ParameterizedType paramType) {
-            return isValidParameterizedType(paramType, method);
+            tmp = isValidParameterizedType(paramType, method);
         }
         log.error("Method {} does not return a parameterized type", method.getName());
-        return Boolean.FALSE;
+        return tmp;
     }
 
-    private static boolean isValidParameterizedType(ParameterizedType paramType, Method method) {
+    private static Boolean isValidParameterizedType(ParameterizedType paramType, Method method) {
         Type rawType = paramType.getRawType();
+        Boolean tmp = Boolean.FALSE;
         if (rawType instanceof Class && List.class.isAssignableFrom((Class<?>) rawType)) {
             Type[] typeArguments = paramType.getActualTypeArguments();
-            return hasValidTypeArgument(typeArguments, method);
+            tmp = hasValidTypeArgument(typeArguments, method);
         }
-        return Boolean.FALSE;
+        return tmp;
     }
 
-    private static boolean hasValidTypeArgument(Type[] typeArguments, Method method) {
-        if (typeArguments.length > 0 && typeArguments[0] instanceof Class<?> listType) {
-            if (!ExcelError.class.isAssignableFrom(listType)) {
-                log.error("Method {} has invalid return type", method.getName());
-                return Boolean.FALSE;
-            }
+    private static Boolean hasValidTypeArgument(Type[] typeArguments, Method method) {
+        if (typeArguments.length > 0 && typeArguments[0] instanceof Class<?> listType && !ExcelError.class.isAssignableFrom(listType)) {
+            log.error("Method {} has invalid return type", method.getName());
+            return Boolean.FALSE;
         }
         return Boolean.TRUE;
     }

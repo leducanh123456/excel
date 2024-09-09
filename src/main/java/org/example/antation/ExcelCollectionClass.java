@@ -1,7 +1,6 @@
 package org.example.antation;
 
 import org.example.collection.ExcelCollection;
-import org.example.dto.ExcelDTO;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -11,5 +10,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface ExcelCollectionClass {
-    Class<? extends ExcelCollection<? extends ExcelDTO<?>>> colectionClass();
+    Class<? extends ExcelCollection> colectionClass();
 }

@@ -13,6 +13,7 @@ import org.example.dto.ExcelError;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,7 +46,7 @@ public class ExcelUtil {
         Field[] fields = excelClass.getDeclaredFields();
         Set<String> cellInValidType = new HashSet<>();
         Set<String> cellNotCheck = new HashSet<>();
-        setDataFromExcel(row, fields, t, cellInValidType);
+        setDataFromExcel(row, fields, t, cellInValidType, excelClass);
         int maxCol = ExcelUtil.maxColum(excelClass);
         int lastCellNum = row.getLastCellNum();
         t.setCellInValidType(cellInValidType);
@@ -62,41 +63,53 @@ public class ExcelUtil {
         return t;
     }
 
-    protected static <T extends ExcelDTO<T>> void setDataFromExcel(Row row, Field[] fields, T t, Set<String> cellInValidType) throws IllegalAccessException {
+    protected static <T extends ExcelDTO<T>> void setDataFromExcel(Row row, Field[] fields, T t, Set<String> cellInValidType, Class<T> excelClass) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         for (Field field : fields) {
             ExcelColum excelColum = field.getAnnotation(ExcelColum.class);
-            field.setAccessible(true);
             int index = excelColum.colNum();
             Cell cell = row.getCell(index);
             Class<?> fieldType = field.getType();
             if (cell == null) {
-                field.set(t, null);
                 continue;
             }
             if (fieldType.equals(String.class) && cell.getCellType().equals(CellType.STRING)) {
-                field.set(t, cell.getStringCellValue());
+                Method setter = excelClass.getMethod("set" + capitalize(field.getName()), String.class);
+                setter.invoke(t, cell.getStringCellValue());
             } else if (fieldType.equals(Integer.class) && cell.getCellType().equals(CellType.NUMERIC)) {
-                field.set(t, (int) cell.getNumericCellValue());
+                Method setter = excelClass.getMethod("set" + capitalize(field.getName()), Integer.class);
+                setter.invoke(t, (int) cell.getNumericCellValue());
             } else if (fieldType.equals(Double.class) && cell.getCellType().equals(CellType.NUMERIC)) {
-                field.set(t, cell.getNumericCellValue());
+                Method setter = excelClass.getMethod("set" + capitalize(field.getName()), Double.class);
+                setter.invoke(t, cell.getNumericCellValue());
             } else if (fieldType.equals(Float.class) && cell.getCellType().equals(CellType.NUMERIC)) {
-                field.set(t, (float) cell.getNumericCellValue());
+                Method setter = excelClass.getMethod("set" + capitalize(field.getName()), Float.class);
+                setter.invoke(t, (float) cell.getNumericCellValue());
             } else if (fieldType.equals(BigDecimal.class) && cell.getCellType().equals(CellType.NUMERIC)) {
-                field.set(t, BigDecimal.valueOf(cell.getNumericCellValue()));
-            } else if (fieldType.equals(Date.class) && cell.getCellType().equals(CellType.NUMERIC)) {
-                field.set(t, org.apache.poi.ss.usermodel.DateUtil.getJavaDate(cell.getNumericCellValue()));
-            } else if (fieldType.equals(LocalDate.class) && cell.getCellType().equals(CellType.NUMERIC)) {
-                Date date = cell.getDateCellValue();
-                field.set(t, date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
-            } else if (fieldType.equals(LocalDateTime.class) && cell.getCellType().equals(CellType.NUMERIC)) {
-                Date date = cell.getDateCellValue();
-                field.set(t, date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime());
-            } else if (fieldType.equals(Boolean.class) && cell.getCellType().equals(CellType.BOOLEAN)) {
-                field.set(t, cell.getBooleanCellValue());
-            } else if (!cell.getCellType().equals(CellType.BLANK)) {
-                cellInValidType.add(field.getName());
+                Method setter = excelClass.getMethod("set" + capitalize(field.getName()), BigDecimal.class);
+                setter.invoke(t, BigDecimal.valueOf(cell.getNumericCellValue()));
             }
+            setDateFromExcel(excelClass, t, cellInValidType, field, cell, fieldType);
 
+        }
+    }
+
+    protected static <T extends ExcelDTO<T>> void setDateFromExcel(Class<T> excelClass, T t, Set<String> cellInValidType, Field field, Cell cell, Class<?> fieldType) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        if (fieldType.equals(Date.class) && cell.getCellType().equals(CellType.NUMERIC)) {
+            Method setter = excelClass.getMethod("set" + capitalize(field.getName()), Date.class);
+            setter.invoke(t, org.apache.poi.ss.usermodel.DateUtil.getJavaDate(cell.getNumericCellValue()));
+        } else if (fieldType.equals(LocalDate.class) && cell.getCellType().equals(CellType.NUMERIC)) {
+            Date date = cell.getDateCellValue();
+            Method setter = excelClass.getMethod("set" + capitalize(field.getName()), LocalDate.class);
+            setter.invoke(t, date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
+        } else if (fieldType.equals(LocalDateTime.class) && cell.getCellType().equals(CellType.NUMERIC)) {
+            Date date = cell.getDateCellValue();
+            Method setter = excelClass.getMethod("set" + capitalize(field.getName()), LocalDateTime.class);
+            setter.invoke(t, date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime());
+        } else if (fieldType.equals(Boolean.class) && cell.getCellType().equals(CellType.BOOLEAN)) {
+            Method setter = excelClass.getMethod("set" + capitalize(field.getName()), Boolean.class);
+            setter.invoke(t, cell.getBooleanCellValue());
+        } else if (!cell.getCellType().equals(CellType.BLANK)) {
+            cellInValidType.add(field.getName());
         }
     }
 
@@ -110,5 +123,23 @@ public class ExcelUtil {
             t.setExcelCollection(r);
             r.getData().add(t);
         }
+    }
+
+    public static <T extends ExcelDTO<T>> void setDataStringToField(Class<T> excelClass, Field field, String value, T t) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method setter = excelClass.getMethod("set" + capitalize(field.getName()), String.class);
+        setter.invoke(t, value);
+    }
+
+    public static <T extends ExcelDTO<T>> void setDataIntegerToField(Class<T> excelClass, Field field, Integer value, T t) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method setter = excelClass.getMethod("set" + capitalize(field.getName()), Integer.class);
+        setter.invoke(t, value);
+    }
+
+
+    public static String capitalize(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 }

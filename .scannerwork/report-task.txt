@@ -1,0 +1,6 @@
+projectKey=Excel-anhld70
+serverUrl=http://10.10.166.112:9000
+serverVersion=10.3.0.82913
+dashboardUrl=http://10.10.166.112:9000/dashboard?id=Excel-anhld70
+ceTaskId=AZHVGAchx6myZ_SASB-Y
+ceTaskUrl=http://10.10.166.112:9000/api/ce/task?id=AZHVGAchx6myZ_SASB-Y

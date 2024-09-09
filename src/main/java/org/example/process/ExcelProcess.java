@@ -1,10 +1,12 @@
 package org.example.process;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.example.antation.ExcelCollectionClass;
 import org.example.collection.ExcelCollection;
 import org.example.dto.ExcelDTO;
+import org.example.exception.DefineExcelException;
 import org.example.exception.ExcelNotValidException;
 import org.example.util.*;
 import org.springframework.validation.Validator;
@@ -14,6 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.function.Predicate;
 
 @Data
+@Slf4j
 public class ExcelProcess<T extends ExcelDTO<T>, R extends ExcelCollection<T>> {
     protected final Class<T> tClass;
     protected final Validator validator;
@@ -36,8 +39,11 @@ public class ExcelProcess<T extends ExcelDTO<T>, R extends ExcelCollection<T>> {
             if (!(checkValid.test(tClass) && checkValidCollection.test((Class<R>) excelCollection.getClass()))) {
                 throw new ExcelNotValidException("Config object excel invalid");
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Not init object read excel, config invalid");
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
+                 InvocationTargetException e) {
+            String message = e.getMessage();
+            log.error("ExcelProcess constructor : {}", message);
+            throw new DefineExcelException("Not init object read excel, config invalid");
         }
     }
 

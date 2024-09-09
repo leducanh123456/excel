@@ -1,5 +1,6 @@
 package org.example.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.example.collection.UserExcelCollection;
@@ -11,11 +12,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Validator;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
 @Service
+@Slf4j
 public class ImportUserExcelServiceImpl implements ImportUserExcelService {
 
     @Autowired
@@ -28,7 +32,7 @@ public class ImportUserExcelServiceImpl implements ImportUserExcelService {
             multipartFile.transferTo(tempFile.toFile());
             Workbook workbook = new XSSFWorkbook(Files.newInputStream(tempFile));
             ExcelProcess<UserExcelDTO, UserExcelCollection> excelProcess = new ExcelProcess<>(UserExcelDTO.class, validator);
-            Boolean  checkHeader = excelProcess.checkHeaderExcel(workbook.getSheetAt(0));
+            Boolean checkHeader = excelProcess.checkHeaderExcel(workbook.getSheetAt(0));
             UserExcelCollection projectExcelCollection = excelProcess.getListFromExcel(workbook.getSheetAt(0));
             List<UserExcelDTO> projectExcelDTOS = projectExcelCollection.getData();
             if (projectExcelCollection.excelIsError()) {
@@ -37,8 +41,10 @@ public class ImportUserExcelServiceImpl implements ImportUserExcelService {
             } else {
                 System.out.println("thành công");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException | InvocationTargetException | NoSuchMethodException | InstantiationException |
+                 IllegalAccessException e) {
+            String message = e.getMessage();
+            log.error("ExcelProcess constructor : {}", message);
         }
     }
 }

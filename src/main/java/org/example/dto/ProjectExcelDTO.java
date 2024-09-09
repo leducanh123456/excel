@@ -104,16 +104,14 @@ public class ProjectExcelDTO extends ExcelDTO<ProjectExcelDTO> {
     @SuppressWarnings({"squid:S1144", "unused"})
     public ExcelError validateDateApproval() {
         ExcelError excelError;
-        if (startDateApproval != null && endDateApproval != null) {
-            if (startDateApproval.isEqual(endDateApproval) || startDateApproval.isAfter(endDateApproval)) {
-                excelError = new ExcelError();
-                excelError.setTitleExcel(List.of("startDateApproval"));
-                excelError.setMessage("start date approval khong hop le");
-                excelError.setRowNum(this.getRowNumber());
-                excelError.setRowNumContent(this.getContentNumber());
-                excelError.setColNum(11);
-                return excelError;
-            }
+        if (startDateApproval != null && endDateApproval != null && (startDateApproval.isEqual(endDateApproval) || startDateApproval.isAfter(endDateApproval))) {
+            excelError = new ExcelError();
+            excelError.setTitleExcel(List.of("startDateApproval"));
+            excelError.setMessage("start date approval khong hop le");
+            excelError.setRowNum(this.getRowNumber());
+            excelError.setRowNumContent(this.getContentNumber());
+            excelError.setColNum(11);
+            return excelError;
         }
         return null;
     }
