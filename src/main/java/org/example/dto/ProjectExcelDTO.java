@@ -46,7 +46,7 @@ public class ProjectExcelDTO extends ExcelDTO<ProjectExcelDTO> {
 
     @ExcelColum(colNum = 3)
     @TitleExcel(title = {"startDate"}, rowNum = {0}, colNum = {3})
-    @ExcelPrimary
+    @ExcelPrimary(message = "startDate phải là duy nhất")
     public Date startDate;
 
     @ExcelColum(colNum = 4)
@@ -57,7 +57,7 @@ public class ProjectExcelDTO extends ExcelDTO<ProjectExcelDTO> {
     @TitleExcel(title = {"total"}, rowNum = {0}, colNum = {5})
     public Integer total;
 
-    @NotEmpty(message = "budget không được để trống")
+    @NotEmpty(message = "Code không được để trống")
     @ExcelColum(colNum = 6)
     @TitleExcel(title = {"code"}, rowNum = {0}, colNum = {6})
     public String code;
@@ -77,13 +77,13 @@ public class ProjectExcelDTO extends ExcelDTO<ProjectExcelDTO> {
 
     @ExcelColum(colNum = 10)
     @TitleExcel(title = {"codePolicy"}, rowNum = {0}, colNum = {10})
-    @ExcelPrimary
+    @ExcelPrimary(message = "codePolicy phải là duy nhất")
     public String codePolicy;
 
     //Approval
     @ExcelColum(colNum = 11)
     @TitleExcel(title = {"startDateApproval"}, rowNum = {0}, colNum = {11})
-    @ExcelPrimary
+    @ExcelPrimary(message = "startDateApproval phải là duy nhất")
     public LocalDate startDateApproval;
 
     @ExcelColum(colNum = 12)
@@ -97,7 +97,7 @@ public class ProjectExcelDTO extends ExcelDTO<ProjectExcelDTO> {
     @NotEmpty(message = "budget không được để trống")
     @ExcelColum(colNum = 14)
     @TitleExcel(title = {"codeApproval"}, rowNum = {0}, colNum = {14})
-    @ExcelPrimary
+    @ExcelPrimary(message = "codeApproval phải là duy nhất")
     public String codeApproval;
 
     @ValidateSingleError

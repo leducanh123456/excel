@@ -53,11 +53,11 @@ public class ExcelUtil {
         t.setRowNumber(rowNum);
         t.setContentNumber(contentNum);
         t.setCellNotCheck(cellNotCheck);
-        if (maxCol < lastCellNum) {
+        if (maxCol < lastCellNum - 1) {
             ExcelError excelError = new ExcelError();
             excelError.setRowNum(t.getRowNumber());
             excelError.setRowNumContent(t.getContentNumber());
-            excelError.setMessage("Số cột không hợp lệ");
+            excelError.setMessage("Định dạng excel không hợp lệ (số cột vượt quá file mẫu)");
             t.getErrors().add(excelError);
         }
         return t;
@@ -87,8 +87,9 @@ public class ExcelUtil {
             } else if (fieldType.equals(BigDecimal.class) && cell.getCellType().equals(CellType.NUMERIC)) {
                 Method setter = excelClass.getMethod("set" + capitalize(field.getName()), BigDecimal.class);
                 setter.invoke(t, BigDecimal.valueOf(cell.getNumericCellValue()));
+            } else {
+                setDateFromExcel(excelClass, t, cellInValidType, field, cell, fieldType);
             }
-            setDateFromExcel(excelClass, t, cellInValidType, field, cell, fieldType);
 
         }
     }
