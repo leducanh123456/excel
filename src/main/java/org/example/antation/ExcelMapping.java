@@ -27,4 +27,5 @@ public @interface ExcelMapping {
     boolean isResourceFolder() default false;
 
     String path() default "";
+    int maxCol() default 0;
 }

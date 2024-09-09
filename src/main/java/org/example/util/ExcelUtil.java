@@ -7,6 +7,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.example.antation.ExcelColum;
 import org.example.antation.ExcelMapping;
+import org.example.antation.FormatExcel;
+import org.example.antation.TitleExcel;
 import org.example.collection.ExcelCollection;
 import org.example.dto.ExcelDTO;
 import org.example.dto.ExcelError;
@@ -17,6 +19,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,6 +32,10 @@ public class ExcelUtil {
     }
 
     public static <T extends ExcelDTO<T>> int maxColum(Class<T> excelClass) {
+        ExcelMapping excelMapping = excelClass.getAnnotation(ExcelMapping.class);
+        if (excelMapping.maxCol() > 0) {
+            return excelMapping.maxCol();
+        }
         Field[] fields = excelClass.getDeclaredFields();
         int col = 0;
         for (Field field : fields) {
@@ -46,13 +53,13 @@ public class ExcelUtil {
         Field[] fields = excelClass.getDeclaredFields();
         Set<String> cellInValidType = new HashSet<>();
         Set<String> cellNotCheck = new HashSet<>();
-        setDataFromExcel(row, fields, t, cellInValidType, excelClass);
-        int maxCol = ExcelUtil.maxColum(excelClass);
-        int lastCellNum = row.getLastCellNum();
         t.setCellInValidType(cellInValidType);
         t.setRowNumber(rowNum);
         t.setContentNumber(contentNum);
         t.setCellNotCheck(cellNotCheck);
+        setDataFromExcel(row, fields, t, cellInValidType, excelClass);
+        int maxCol = ExcelUtil.maxColum(excelClass);
+        int lastCellNum = row.getLastCellNum();
         if (maxCol < lastCellNum - 1) {
             ExcelError excelError = new ExcelError();
             excelError.setRowNum(t.getRowNumber());
@@ -68,10 +75,8 @@ public class ExcelUtil {
             ExcelColum excelColum = field.getAnnotation(ExcelColum.class);
             int index = excelColum.colNum();
             Cell cell = row.getCell(index);
+            checkCellStyle(t, field, cell);
             Class<?> fieldType = field.getType();
-            if (cell == null) {
-                continue;
-            }
             if (fieldType.equals(String.class) && cell.getCellType().equals(CellType.STRING)) {
                 Method setter = excelClass.getMethod("set" + capitalize(field.getName()), String.class);
                 setter.invoke(t, cell.getStringCellValue());
@@ -91,6 +96,30 @@ public class ExcelUtil {
                 setDateFromExcel(excelClass, t, cellInValidType, field, cell, fieldType);
             }
 
+        }
+    }
+
+    private static <T extends ExcelDTO<T>> void checkCellStyle(T t, Field field, Cell cell) {
+        FormatExcel formatExcel = field.getAnnotation(FormatExcel.class);
+        String[] formatConfig = formatExcel.format();
+        String cellStyle = cell.getCellStyle().getDataFormatString();
+        int k = 0;
+        for (String tmp : formatConfig) {
+            if (tmp.equals(cellStyle)) {
+                k++;
+                break;
+            }
+        }
+        if (k == 0) {
+            ExcelError excelError = new ExcelError();
+            excelError.setRowNum(t.getRowNumber());
+            TitleExcel titleExcel = field.getAnnotation(TitleExcel.class);
+            ExcelColum excelColum = field.getAnnotation(ExcelColum.class);
+            excelError.setTitleExcel(Arrays.asList(titleExcel.title()));
+            excelError.setColNum(excelColum.colNum());
+            excelError.setRowNumContent(t.getContentNumber());
+            excelError.setMessage(formatExcel.message());
+            t.getErrors().add(excelError);
         }
     }
 

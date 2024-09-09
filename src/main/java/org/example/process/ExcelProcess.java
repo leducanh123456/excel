@@ -37,12 +37,13 @@ public class ExcelProcess<T extends ExcelDTO<T>, R extends ExcelCollection<T>> {
             Predicate<Class<T>> checkValid = getClassPredicate();
             Predicate<Class<R>> checkValidCollection = ValidateMethodErrorUtil::validateListError;
             if (!(checkValid.test(tClass) && checkValidCollection.test((Class<R>) excelCollection.getClass()))) {
-                throw new ExcelNotValidException("Config object excel invalid");
+                log.error("Excel config : ExcelProcess constructor : Config object excel invalid");
+                throw new ExcelNotValidException("Excel config : Config object excel invalid");
             }
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
                  InvocationTargetException e) {
             String message = e.getMessage();
-            log.error("ExcelProcess constructor : {}", message);
+            log.error("Excel config : ExcelProcess constructor : {}", message);
             throw new DefineExcelException("Not init object read excel, config invalid");
         }
     }
