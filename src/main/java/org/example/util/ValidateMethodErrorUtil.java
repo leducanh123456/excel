@@ -47,7 +47,8 @@ public class ValidateMethodErrorUtil {
     private static Boolean isValidMethodReturnType(Method method) {
         Type returnType = method.getGenericReturnType();
         Boolean tmp = Boolean.FALSE;
-        if (returnType instanceof ParameterizedType paramType) {
+        if (returnType instanceof ParameterizedType) {
+            ParameterizedType paramType = (ParameterizedType) returnType; // Explicitly cast
             tmp = isValidParameterizedType(paramType, method);
         }
         log.error("Method {} does not return a parameterized type", method.getName());
@@ -65,9 +66,12 @@ public class ValidateMethodErrorUtil {
     }
 
     private static Boolean hasValidTypeArgument(Type[] typeArguments, Method method) {
-        if (typeArguments.length > 0 && typeArguments[0] instanceof Class<?> listType && !ExcelError.class.isAssignableFrom(listType)) {
-            log.error("Method {} has invalid return type", method.getName());
-            return Boolean.FALSE;
+        if (typeArguments.length > 0 && typeArguments[0] instanceof Class) {
+            Class<?> listType = (Class<?>) typeArguments[0]; // Explicitly cast
+            if (!ExcelError.class.isAssignableFrom(listType)) {
+                log.error("Method {} has invalid return type", method.getName());
+                return Boolean.FALSE;
+            }
         }
         return Boolean.TRUE;
     }

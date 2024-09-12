@@ -142,7 +142,8 @@ public class ProcessExcelUtil {
 
     protected static <T extends ExcelDTO<T>> void addErrorFromValidation(Class<T> excelClass, T t, List<ObjectError> objectErrors, Set<String> cellNotCheck, Set<String> cellInvalidType) {
         for (ObjectError objectError : objectErrors) {
-            if (objectError instanceof FieldError fieldError) {
+            if (objectError instanceof FieldError) {
+                FieldError fieldError = (FieldError) objectError; // Explicitly cast
                 if ((!ObjectUtils.isEmpty(cellNotCheck) && cellNotCheck.contains(fieldError.getField()))
                         || (!ObjectUtils.isEmpty(cellInvalidType) && cellInvalidType.contains(fieldError.getField()))) {
                     continue;

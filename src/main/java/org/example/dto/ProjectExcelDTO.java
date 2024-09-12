@@ -1,6 +1,6 @@
 package org.example.dto;
 
-import jakarta.validation.constraints.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.example.antation.*;
 import org.example.collection.ProjectExcelCollection;
 
+import javax.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Date;
